@@ -86,27 +86,52 @@ export default function Home() {
         );
       case 'library':
         return (
-          <div className="flex-1 p-12 font-mono space-y-8 h-full overflow-auto">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
-                <Package className="text-primary" />
-                Audio Repository
-              </h2>
-              <div className="h-0.5 w-32 bg-primary/30" />
+          <div className="flex-1 p-8 font-mono space-y-8 h-full overflow-auto">
+            <div className="flex items-end justify-between border-b border-border/20 pb-6">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
+                  <Package className="text-primary" />
+                  Signal Archive
+                </h2>
+                <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">
+                  Index: 0042 // Nodes Active: 06
+                </div>
+              </div>
+              
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="group relative px-8 py-3 border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all"
+              >
+                <div className="flex items-center gap-3">
+                  <Zap size={14} className="text-primary animate-pulse" />
+                  <span className="text-xs uppercase tracking-widest text-primary">Inyectar Señal Local</span>
+                </div>
+                {/* Decorative Corners */}
+                <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40" />
+                <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-primary/40" />
+              </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="border border-border/50 p-6 space-y-4 hover:border-primary/50 transition-colors bg-white/5 group cursor-pointer">
-                  <div className="flex justify-between items-start">
-                    <div className="w-10 h-10 border border-primary/20 flex items-center justify-center text-primary/40 group-hover:text-primary transition-colors">
-                      {i}
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
+                <div key={i} className="border border-border/30 p-3 space-y-3 hover:border-primary/40 transition-all bg-black/40 group cursor-pointer relative overflow-hidden">
+                  <div className="flex justify-between items-start relative z-10">
+                    <div className="text-[9px] text-primary/30 group-hover:text-primary transition-colors">
+                      ID: {i.toString().padStart(4, '0')}
                     </div>
-                    <div className="text-[10px] text-muted-foreground/30">TYPE: .FLAC</div>
+                    <div className="text-[8px] text-muted-foreground/20">44.1kHz</div>
                   </div>
-                  <div>
-                    <div className="text-sm font-bold uppercase tracking-tight">DATA_STREAM_{i}</div>
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-widest">ARCHIVE_NODE_{i}</div>
+                  <div className="relative z-10">
+                    <div className="text-[11px] font-bold uppercase tracking-tight truncate group-hover:text-primary transition-colors">
+                      DATA_STREAM_{i}
+                    </div>
+                    <div className="text-[8px] text-muted-foreground/40 uppercase tracking-widest">Archive_Node_{i}</div>
                   </div>
+                  <div className="h-1 w-full bg-zinc-900 overflow-hidden relative z-10">
+                    <div className="h-full bg-primary/10 w-full group-hover:w-0 transition-all duration-500" />
+                  </div>
+                  {/* Background Decoration */}
+                  <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               ))}
             </div>
