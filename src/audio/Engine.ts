@@ -146,8 +146,11 @@ export class AudioEngine {
 
   getSystemMetrics() {
     if (!this.context) return { latency: 0, sampleRate: 0 };
+    const ctx = this.context as any;
+    // Some browsers use baseLatency, some outputLatency, some both
+    const latency = (ctx.baseLatency || 0) + (ctx.outputLatency || 0);
     return {
-      latency: (this.context as any).baseLatency || 0,
+      latency: latency,
       sampleRate: this.context.sampleRate
     };
   }

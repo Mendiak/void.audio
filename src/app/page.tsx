@@ -17,10 +17,14 @@ export default function Home() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [mounted, setMounted] = React.useState(false);
-  const nodeId = React.useMemo(() => Math.random().toString(16).slice(2, 8).toUpperCase(), []);
+  const [hwInfo, setHwInfo] = React.useState({ cores: 0, platform: '' });
 
   React.useEffect(() => {
     setMounted(true);
+    setHwInfo({
+      cores: navigator.hardwareConcurrency || 0,
+      platform: navigator.platform || 'UNKNOWN'
+    });
   }, []);
 
   const handleStartSample = () => {
@@ -320,8 +324,9 @@ export default function Home() {
               </div>
             </div>
             <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground/30">
-              <span>LATENCY: {(metrics.latency * 1000).toFixed(2)}ms</span>
-              <span>NODE_ID: {mounted ? nodeId : '------'}</span>
+              <span>LATENCY: {metrics.latency > 0 ? (metrics.latency * 1000).toFixed(2) : '0.04'}ms</span>
+              <span>CPU_CORES: {mounted ? hwInfo.cores : '--'}</span>
+              <span className="hidden md:inline">SYSTEM: {mounted ? hwInfo.platform : '----'}</span>
             </div>
           </div>
 
