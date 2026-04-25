@@ -289,10 +289,6 @@ export default function Home() {
         return null;
     }
   };
-      default:
-        return null;
-    }
-  };
 
   return (
     <main className="h-screen w-screen flex flex-col bg-background text-foreground overflow-hidden">
