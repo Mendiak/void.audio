@@ -12,7 +12,7 @@ import { Terminal, Activity, Zap, Package, Music, Settings as SettingsIcon } fro
 import { cn } from '@/lib/utils';
 
 export default function Home() {
-  const { loadTrack, loadLocalFile, isPlaying, trackInfo, playTone } = useAudio();
+  const { loadTrack, loadLocalFile, isPlaying, trackInfo, playTone, library, addToLibrary } = useAudio();
   const { activeView } = useUI();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -32,9 +32,13 @@ export default function Home() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      loadLocalFile(file);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      if (files.length === 1 && activeView !== 'library') {
+        loadLocalFile(files[0]);
+      } else {
+        addToLibrary(files);
+      }
     }
   };
 
@@ -62,7 +66,7 @@ export default function Home() {
                       onClick={() => fileInputRef.current?.click()}
                       className="px-6 py-2 border border-primary bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95"
                     >
-                      Load Local Signal
+                      Load Signal
                     </button>
                     <button
                       onClick={handleStartSample}
@@ -86,15 +90,15 @@ export default function Home() {
         );
       case 'library':
         return (
-          <div className="flex-1 p-8 font-mono space-y-8 h-full overflow-auto">
-            <div className="flex items-end justify-between border-b border-border/20 pb-6">
+          <div className="flex-1 p-8 font-mono space-y-8 h-full overflow-hidden flex flex-col">
+            <div className="flex items-end justify-between border-b border-border/20 pb-6 shrink-0">
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
                   <Package className="text-primary" />
                   Signal Archive
                 </h2>
                 <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">
-                  Index: 0042 // Nodes Active: 06
+                  Index: {library.length.toString().padStart(4, '0')} // Archive Active
                 </div>
               </div>
               
@@ -104,36 +108,60 @@ export default function Home() {
               >
                 <div className="flex items-center gap-3">
                   <Zap size={14} className="text-primary animate-pulse" />
-                  <span className="text-xs uppercase tracking-widest text-primary">Inject Local Signal</span>
+                  <span className="text-xs uppercase tracking-widest text-primary">Inject Bulk Signals</span>
                 </div>
-                {/* Decorative Corners */}
                 <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40" />
                 <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-primary/40" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
-                <div key={i} className="border border-border/30 p-3 space-y-3 hover:border-primary/40 transition-all bg-black/40 group cursor-pointer relative overflow-hidden">
-                  <div className="flex justify-between items-start relative z-10">
-                    <div className="text-[9px] text-primary/30 group-hover:text-primary transition-colors">
-                      ID: {i.toString().padStart(4, '0')}
-                    </div>
-                    <div className="text-[8px] text-muted-foreground/20">44.1kHz</div>
-                  </div>
-                  <div className="relative z-10">
-                    <div className="text-[11px] font-bold uppercase tracking-tight truncate group-hover:text-primary transition-colors">
-                      DATA_STREAM_{i}
-                    </div>
-                    <div className="text-[8px] text-muted-foreground/40 uppercase tracking-widest">Archive_Node_{i}</div>
-                  </div>
-                  <div className="h-1 w-full bg-zinc-900 overflow-hidden relative z-10">
-                    <div className="h-full bg-primary/10 w-full group-hover:w-0 transition-all duration-500" />
-                  </div>
-                  {/* Background Decoration */}
-                  <div className="absolute inset-0 bg-primary/[0.02] opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="flex-1 overflow-auto border border-border/10 bg-black/20">
+              {library.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground/20 space-y-4">
+                  <Package size={48} strokeWidth={1} />
+                  <p className="text-[10px] uppercase tracking-[0.3em]">Archive Empty // Awaiting Input</p>
                 </div>
-              ))}
+              ) : (
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-border/10 text-[9px] uppercase tracking-widest text-muted-foreground/40">
+                      <th className="p-4 font-normal">ID</th>
+                      <th className="p-4 font-normal">Signal Name</th>
+                      <th className="p-4 font-normal">Source</th>
+                      <th className="p-4 font-normal text-right">Data Size</th>
+                      <th className="p-4 font-normal w-20"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-[11px] uppercase tracking-tight">
+                    {library.map((track) => (
+                      <tr 
+                        key={track.id} 
+                        className="border-b border-border/5 hover:bg-primary/5 group cursor-pointer transition-colors"
+                        onClick={() => loadLocalFile(track.file)}
+                      >
+                        <td className="p-4 text-primary/30 group-hover:text-primary transition-colors font-mono">
+                          {track.id.slice(0, 4)}
+                        </td>
+                        <td className="p-4 font-bold truncate max-w-[300px]">
+                          {track.title}
+                        </td>
+                        <td className="p-4 text-muted-foreground/40">
+                          {track.artist}
+                        </td>
+                        <td className="p-4 text-right text-muted-foreground/30 font-mono">
+                          {(track.file.size / (1024 * 1024)).toFixed(2)} MB
+                        </td>
+                        <td className="p-4 text-right">
+                          <Activity size={12} className={cn(
+                            "inline-block transition-all",
+                            trackInfo.title === track.title ? "text-primary animate-pulse" : "text-muted-foreground/10 opacity-0 group-hover:opacity-100"
+                          )} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         );
@@ -205,6 +233,7 @@ export default function Home() {
         ref={fileInputRef} 
         onChange={handleFileChange} 
         accept="audio/*" 
+        multiple
         className="hidden" 
       />
 

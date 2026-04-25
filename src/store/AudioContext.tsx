@@ -15,6 +15,8 @@ interface AudioContextType {
   setVolume: (v: number) => void;
   loadTrack: (url: string, title: string, artist: string) => Promise<void>;
   loadLocalFile: (file: File) => Promise<void>;
+  library: Array<{ id: string; file: File; title: string; artist: string; duration?: number }>;
+  addToLibrary: (files: FileList | File[]) => void;
   engine: AudioEngine | null;
 }
 
@@ -26,6 +28,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.5);
   const [trackInfo, setTrackInfo] = useState({ title: 'NO SIGNAL', artist: 'UNKNOWN' });
+  const [library, setLibrary] = useState<Array<{ id: string; file: File; title: string; artist: string; duration?: number }>>([]);
   
   const engineRef = useRef<AudioEngine | null>(null);
 
@@ -80,6 +83,16 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     engineRef.current?.play();
   };
 
+  const addToLibrary = (files: FileList | File[]) => {
+    const newTracks = Array.from(files).map(file => ({
+      id: Math.random().toString(36).substring(7),
+      file,
+      title: file.name.toUpperCase(),
+      artist: 'LOCAL_ARCHIVE'
+    }));
+    setLibrary(prev => [...prev, ...newTracks]);
+  };
+
   return (
     <AudioContext.Provider value={{
       isPlaying,
@@ -87,12 +100,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       duration,
       volume,
       trackInfo,
+      library,
       play,
       pause,
       playTone,
       setVolume,
       loadTrack,
       loadLocalFile,
+      addToLibrary,
       engine: engineRef.current
     }}>
       {children}
