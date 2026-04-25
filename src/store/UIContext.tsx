@@ -19,12 +19,15 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
   const [activeView, setActiveView] = useState<View>('visuals');
 
   useEffect(() => {
-    // Apply theme class to body
-    const body = document.body;
-    body.classList.forEach(cls => {
-      if (cls.startsWith('theme-')) body.classList.remove(cls);
+    // Apply theme to document element
+    document.documentElement.setAttribute('data-theme', theme);
+    
+    // Also keep the class for legacy support if needed
+    const html = document.documentElement;
+    html.classList.forEach(cls => {
+      if (cls.startsWith('theme-')) html.classList.remove(cls);
     });
-    body.classList.add(`theme-${theme}`);
+    html.classList.add(`theme-${theme}`);
   }, [theme]);
 
   return (

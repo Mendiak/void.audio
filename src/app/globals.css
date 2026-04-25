@@ -28,28 +28,28 @@
   --radius: 0px;
 }
 
-.theme-pink {
-  --primary: #ffb7c5; /* Pastel Pink */
+[data-theme="pink"] {
+  --primary: #ffb7c5;
   --ring: #ffb7c5;
 }
 
-.theme-amber {
-  --primary: #ffd8a8; /* Soft Amber */
+[data-theme="amber"] {
+  --primary: #ffd8a8;
   --ring: #ffd8a8;
 }
 
-.theme-green {
-  --primary: #c1e1c1; /* Sage Green */
+[data-theme="green"] {
+  --primary: #c1e1c1;
   --ring: #c1e1c1;
 }
 
-.theme-purple {
-  --primary: #dcd3ff; /* Lavender */
+[data-theme="purple"] {
+  --primary: #dcd3ff;
   --ring: #dcd3ff;
 }
 
-.theme-cyan {
-  --primary: #a2e4f1; /* Pastel Cyan */
+[data-theme="cyan"] {
+  --primary: #a2e4f1;
   --ring: #a2e4f1;
 }
 

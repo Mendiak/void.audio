@@ -104,7 +104,7 @@ export default function Home() {
               >
                 <div className="flex items-center gap-3">
                   <Zap size={14} className="text-primary animate-pulse" />
-                  <span className="text-xs uppercase tracking-widest text-primary">Inyectar Señal Local</span>
+                  <span className="text-xs uppercase tracking-widest text-primary">Inject Local Signal</span>
                 </div>
                 {/* Decorative Corners */}
                 <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40" />
