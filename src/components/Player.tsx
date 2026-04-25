@@ -105,7 +105,10 @@ export function Player() {
               value={[volume * 100]} 
               max={100} 
               step={1}
-              onValueChange={(v) => setVolume(v[0] / 100)}
+              onValueChange={(v) => {
+                const val = Array.isArray(v) ? v[0] : v;
+                setVolume(val / 100);
+              }}
               className="flex-1"
             />
           </div>
