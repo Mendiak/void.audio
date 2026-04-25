@@ -71,7 +71,8 @@ export function Player() {
     play, 
     pause, 
     setVolume,
-    engine
+    engine,
+    metrics
   } = useAudio();
 
   const [isExpanded, setIsExpanded] = React.useState(false);
