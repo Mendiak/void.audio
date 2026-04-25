@@ -31,9 +31,8 @@ export function Player() {
       {/* Hardware Accents */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       
-      {/* Track Info */}
-      <div className="w-64 flex flex-col gap-1">
-      <div className="w-64">
+      {/* Track Info Container */}
+      <div className="w-64 shrink-0">
         <div className="flex items-center gap-6">
           {/* Signal Identity (Cover Art Slot) */}
           <div className="relative group">
@@ -60,10 +59,10 @@ export function Player() {
               <div className="w-1 h-1 bg-primary/40 rounded-full" />
               Signal Locked
             </div>
-            <div className="text-sm font-bold tracking-tighter uppercase crt-glow">
+            <div className="text-sm font-bold tracking-tighter uppercase crt-glow truncate">
               {trackInfo.title}
             </div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-widest">
+            <div className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">
               {trackInfo.artist}
             </div>
           </div>
