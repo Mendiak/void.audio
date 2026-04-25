@@ -86,21 +86,29 @@ export function Player() {
           {/* Signal Identity (Cover Art Slot) */}
           <div className="relative group">
             <div className="w-12 h-12 border border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden relative">
-              {/* Decorative Scanline */}
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
+              {trackInfo.cover ? (
+                <img 
+                  src={trackInfo.cover} 
+                  alt="Signal Source" 
+                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
+                />
+              ) : (
+                /* Placeholder Graphic */
+                <div className="w-6 h-6 border-2 border-primary/10 rotate-45 flex items-center justify-center group-hover:rotate-90 transition-transform duration-700">
+                  <div className="w-2 h-2 bg-primary/20 animate-pulse" />
+                </div>
+              )}
               
-              {/* Placeholder Graphic */}
-              <div className="w-6 h-6 border-2 border-primary/10 rotate-45 flex items-center justify-center group-hover:rotate-90 transition-transform duration-700">
-                <div className="w-2 h-2 bg-primary/20 animate-pulse" />
-              </div>
+              {/* Decorative Scanline */}
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none z-10" />
 
               {/* Technical Corners */}
-              <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40" />
-              <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-primary/40" />
+              <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40 z-20" />
+              <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-primary/40 z-20" />
             </div>
             
             {/* Status LED */}
-            <div className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" />
+            <div className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)] z-30" />
           </div>
 
           <div className="space-y-1 flex-1 min-w-0">

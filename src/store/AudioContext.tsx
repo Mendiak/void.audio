@@ -2,20 +2,47 @@
 
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { AudioEngine } from '@/audio/Engine';
+import * as mm from 'music-metadata-browser';
+
+const extractMetadata = async (file: File): Promise<{ title: string; artist: string; cover?: string }> => {
+  try {
+    const metadata = await mm.parseBlob(file);
+    const { title, artist, picture } = metadata.common;
+    
+    let cover;
+    const activePicture = mm.selectCover(picture);
+    if (activePicture) {
+      const blob = new Blob([activePicture.data], { type: activePicture.format });
+      cover = URL.createObjectURL(blob);
+    }
+    
+    return {
+      title: title || file.name.toUpperCase(),
+      artist: artist || 'UNKNOWN_SOURCE',
+      cover
+    };
+  } catch (error) {
+    console.error('Error extracting metadata:', error);
+    return {
+      title: file.name.toUpperCase(),
+      artist: 'LOCAL_SIGNAL'
+    };
+  }
+};
 
 interface AudioContextType {
   isPlaying: boolean;
   currentTime: number;
   duration: number;
   volume: number;
-  trackInfo: { title: string; artist: string };
+  trackInfo: { title: string; artist: string; cover?: string };
   play: () => void;
   pause: () => void;
   playTone: () => void;
   setVolume: (v: number) => void;
-  loadTrack: (url: string, title: string, artist: string) => Promise<void>;
+  loadTrack: (url: string, title: string, artist: string, cover?: string) => Promise<void>;
   loadLocalFile: (file: File) => Promise<void>;
-  library: Array<{ id: string; file: File; title: string; artist: string; duration?: number }>;
+  library: Array<{ id: string; file: File; title: string; artist: string; duration?: number; cover?: string }>;
   addToLibrary: (files: FileList | File[]) => void;
   metrics: { latency: number; sampleRate: number };
   engine: AudioEngine | null;
@@ -28,8 +55,8 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolumeState] = useState(0.5);
-  const [trackInfo, setTrackInfo] = useState({ title: 'NO SIGNAL', artist: 'UNKNOWN' });
-  const [library, setLibrary] = useState<Array<{ id: string; file: File; title: string; artist: string; duration?: number }>>([]);
+  const [trackInfo, setTrackInfo] = useState<{ title: string; artist: string; cover?: string }>({ title: 'NO SIGNAL', artist: 'UNKNOWN' });
+  const [library, setLibrary] = useState<Array<{ id: string; file: File; title: string; artist: string; duration?: number; cover?: string }>>([]);
   const [metrics, setMetrics] = useState({ latency: 0, sampleRate: 0 });
   
   const engineRef = useRef<AudioEngine | null>(null);
@@ -75,24 +102,28 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [trackInfo]);
 
-  const loadTrack = async (url: string, title: string, artist: string) => {
+  const loadTrack = async (url: string, title: string, artist: string, cover?: string) => {
     await engineRef.current?.loadTrack(url);
-    setTrackInfo({ title, artist });
+    setTrackInfo({ title, artist, cover });
     engineRef.current?.play();
   };
 
   const loadLocalFile = async (file: File) => {
+    const meta = await extractMetadata(file);
     await engineRef.current?.loadLocalFile(file);
-    setTrackInfo({ title: file.name.toUpperCase(), artist: 'LOCAL_SIGNAL' });
+    setTrackInfo(meta);
     engineRef.current?.play();
   };
 
-  const addToLibrary = (files: FileList | File[]) => {
-    const newTracks = Array.from(files).map(file => ({
-      id: Math.random().toString(36).substring(7),
-      file,
-      title: file.name.toUpperCase(),
-      artist: 'LOCAL_ARCHIVE'
+  const addToLibrary = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    const newTracks = await Promise.all(fileArray.map(async file => {
+      const meta = await extractMetadata(file);
+      return {
+        id: Math.random().toString(36).substring(7),
+        file,
+        ...meta
+      };
     }));
     setLibrary(prev => [...prev, ...newTracks]);
   };
