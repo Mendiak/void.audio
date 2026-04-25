@@ -5,6 +5,7 @@ import { useAudio } from '@/store/AudioContext';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 function formatTime(seconds: number) {
   const mins = Math.floor(seconds / 60);
@@ -73,10 +74,101 @@ export function Player() {
     engine
   } = useAudio();
 
+  const [isExpanded, setIsExpanded] = React.useState(false);
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="h-24 border-t border-border/50 bg-black/60 backdrop-blur-xl flex items-center px-8 gap-8 relative overflow-hidden">
+    <div className="h-24 border-t border-border/50 bg-black/60 backdrop-blur-xl flex items-center px-8 gap-8 relative overflow-hidden shrink-0">
+      {/* Expanded Signal View Overlay */}
+      {isExpanded && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-12"
+          onClick={() => setIsExpanded(false)}
+        >
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="max-w-2xl w-full aspect-square border border-primary/30 bg-black/40 relative group overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {trackInfo.cover ? (
+              <img src={trackInfo.cover} className="w-full h-full object-contain" alt="Signal Identity" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                <Activity size={128} className="text-primary/10 animate-pulse" />
+              </div>
+            )}
+            
+            {/* HUD Overlays */}
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-8">
+              {/* Top Row: Meta & Diagnostics */}
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary animate-ping rounded-full" />
+                    <span className="text-[10px] text-primary uppercase tracking-[0.4em] font-mono">Signal_Diagnostic_Active</span>
+                  </div>
+                  <h2 className="text-3xl font-bold uppercase tracking-tighter crt-glow text-white/90">{trackInfo.title}</h2>
+                  <div className="text-xs text-primary/60 uppercase tracking-widest font-mono">{trackInfo.artist}</div>
+                </div>
+                
+                <div className="bg-black/60 border border-primary/20 backdrop-blur-md p-4 space-y-2 min-w-[140px]">
+                  <div className="text-[8px] text-primary/40 uppercase tracking-widest border-b border-primary/10 pb-1 mb-2">Sync_Metrics</div>
+                  <div className="flex justify-between text-[10px] font-mono">
+                    <span className="text-primary/40">POS:</span>
+                    <span className="text-primary">{formatTime(currentTime)}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px] font-mono">
+                    <span className="text-primary/40">LEN:</span>
+                    <span className="text-primary">{formatTime(duration)}</span>
+                  </div>
+                  <div className="flex justify-between text-[10px] font-mono">
+                    <span className="text-primary/40">FRQ:</span>
+                    <span className="text-primary">{(metrics.sampleRate / 1000).toFixed(1)}kHz</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grid lines effect */}
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,#var(--primary)_1px,transparent_1px),linear-gradient(to_bottom,#var(--primary)_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.03]" />
+
+              {/* Bottom Row: Hardware Status */}
+              <div className="flex justify-between items-end">
+                <div className="text-[8px] font-mono text-primary/30 max-w-[200px] leading-relaxed">
+                  CORE_ANALYSIS_COMPLETE // SIGNAL_STABILITY: NOMINAL // 
+                  DECRYPTING_METADATA_STREAM... DONE
+                </div>
+                <div className="flex gap-4">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="w-1 h-4 bg-primary/10 relative overflow-hidden">
+                      <motion.div 
+                        animate={{ y: [16, -16] }}
+                        transition={{ duration: 1 + Math.random(), repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 bg-primary/40"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Technical Corners */}
+              <div className="absolute top-0 left-0 w-12 h-12 border-t border-l border-primary/40" />
+              <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-primary/40" />
+              <div className="absolute bottom-0 left-0 w-12 h-12 border-b border-l border-primary/40" />
+              <div className="absolute bottom-0 right-0 w-12 h-12 border-b border-r border-primary/40" />
+            </div>
+
+            <button 
+              onClick={() => setIsExpanded(false)}
+              className="absolute top-4 right-4 p-2 text-primary/40 hover:text-primary transition-colors z-50"
+            >
+              <div className="text-[10px] font-mono uppercase tracking-widest">Close_View [X]</div>
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
       {/* Hardware Accents */}
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       
@@ -84,7 +176,11 @@ export function Player() {
       <div className="w-80 shrink-0">
         <div className="flex items-center gap-6">
           {/* Signal Identity (Cover Art Slot) */}
-          <div className="relative group">
+          <div 
+            className="relative group cursor-pointer" 
+            onClick={() => setIsExpanded(true)}
+            title="Expand Signal Identity"
+          >
             <div className="w-12 h-12 border border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden relative">
               {trackInfo.cover ? (
                 <img 

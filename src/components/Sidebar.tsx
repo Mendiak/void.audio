@@ -39,6 +39,25 @@ export function Sidebar() {
     { id: 'purple', color: '#dcd3ff' },
   ] as const;
 
+  const [uptime, setUptime] = React.useState(0);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    const start = Date.now();
+    const timer = setInterval(() => {
+      setUptime(Math.floor((Date.now() - start) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatUptime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div className="w-64 h-full flex flex-col border-r border-border bg-black/40 backdrop-blur-md relative overflow-hidden">
       <div className="p-6 border-b border-border/20">
@@ -105,10 +124,13 @@ export function Sidebar() {
       <div className="p-4 border-t border-border/20 bg-black/40">
         <div className="flex items-center justify-between text-[9px] font-mono text-muted-foreground/30 uppercase">
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500/20 shadow-[0_0_4px_rgba(34,197,94,0.4)]" />
-            <span>Link established</span>
+            <div className={cn(
+              "w-1.5 h-1.5 rounded-full transition-colors",
+              mounted ? "bg-green-500/40 shadow-[0_0_4px_#22c55e]" : "bg-red-500/20"
+            )} />
+            <span>{mounted ? 'Link established' : 'Awaiting link'}</span>
           </div>
-          <span>Uptime: 04:21:00</span>
+          <span>Uptime: {formatUptime(uptime)}</span>
         </div>
       </div>
     </div>
