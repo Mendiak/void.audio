@@ -36,7 +36,9 @@ export function AsciiVisualizer() {
     const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary').trim();
 
     for (let x = 0; x < cols; x++) {
-      const dataIdx = Math.floor((x / cols) * data.length);
+      // Skip the first 3 bins which often have extreme energy (DC offset / sub-bass noise)
+      const offset = 3;
+      const dataIdx = offset + Math.floor((x / cols) * (data.length - offset));
       const intensity = data[dataIdx] / 255;
       
       const colHeight = Math.floor(intensity * rows);

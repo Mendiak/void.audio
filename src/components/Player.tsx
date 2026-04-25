@@ -25,11 +25,15 @@ const BarVisualizer = ({ engine, isPlaying }: { engine: any, isPlaying: boolean 
     const update = () => {
       const freqData = engine.getFrequencyData();
       if (freqData && freqData.length > 0) {
-        // Sample 12 points from the frequency data
+        // Skip the first 2 bins (often DC offset/extreme bass noise)
+        const offset = 2;
         const simplified = new Uint8Array(12);
-        const step = Math.floor(freqData.length / 24);
+        // Map 12 bars over the remaining frequency range, slightly weighted towards lower-mids
+        const totalBins = freqData.length - offset;
         for (let i = 0; i < 12; i++) {
-          simplified[i] = freqData[i * step] || 0;
+          // Logarithmic-ish sampling to better reflect human hearing
+          const index = offset + Math.floor(Math.pow(i / 11, 1.5) * (totalBins - 1));
+          simplified[i] = freqData[index] || 0;
         }
         setData(simplified);
       }
@@ -47,8 +51,8 @@ const BarVisualizer = ({ engine, isPlaying }: { engine: any, isPlaying: boolean 
           key={i} 
           className="w-[2px] bg-primary transition-all duration-75"
           style={{ 
-            height: `${Math.max(2, (val / 255) * 100)}%`,
-            opacity: 0.3 + (val / 255) * 0.7
+            height: val > 5 ? `${(val / 255) * 100}%` : '2px',
+            opacity: val > 5 ? 0.3 + (val / 255) * 0.7 : 0.1
           }}
         />
       ))}
