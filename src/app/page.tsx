@@ -6,14 +6,14 @@ import { Player } from '@/components/Player';
 import { AsciiVisualizer } from '@/visuals/AsciiVisualizer';
 import { BootScreen } from '@/components/BootScreen';
 import { useAudio } from '@/store/AudioContext';
-import { useUI } from '@/store/UIContext';
+import { useUI, THEMES } from '@/store/UIContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, Activity, Zap, Package, Music, Settings as SettingsIcon } from 'lucide-react';
+import { Terminal, Activity, Zap, Package, Music, Settings as SettingsIcon, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Home() {
   const { loadTrack, loadLocalFile, isPlaying, trackInfo, playTone, library, addToLibrary } = useAudio();
-  const { activeView } = useUI();
+  const { activeView, theme, setTheme } = useUI();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const [mounted, setMounted] = React.useState(false);
@@ -127,7 +127,9 @@ export default function Home() {
                     <tr className="border-b border-border/10 text-[9px] uppercase tracking-widest text-muted-foreground/40">
                       <th className="p-4 font-normal">ID</th>
                       <th className="p-4 font-normal">Signal Name</th>
+                      <th className="p-4 font-normal">Type</th>
                       <th className="p-4 font-normal">Source</th>
+                      <th className="p-4 font-normal text-right">Bitrate</th>
                       <th className="p-4 font-normal text-right">Data Size</th>
                       <th className="p-4 font-normal w-20"></th>
                     </tr>
@@ -142,11 +144,17 @@ export default function Home() {
                         <td className="p-4 text-primary/30 group-hover:text-primary transition-colors font-mono">
                           {track.id.slice(0, 4)}
                         </td>
-                        <td className="p-4 font-bold truncate max-w-[300px]">
+                        <td className="p-4 font-bold truncate max-w-[200px]">
                           {track.title}
+                        </td>
+                        <td className="p-4 text-muted-foreground/50">
+                          {track.file.name.split('.').pop()?.toUpperCase() || 'RAW'}
                         </td>
                         <td className="p-4 text-muted-foreground/40">
                           {track.artist}
+                        </td>
+                        <td className="p-4 text-right text-muted-foreground/30 font-mono">
+                          320 KBPS
                         </td>
                         <td className="p-4 text-right text-muted-foreground/30 font-mono">
                           {(track.file.size / (1024 * 1024)).toFixed(2)} MB
@@ -162,6 +170,73 @@ export default function Home() {
                   </tbody>
                 </table>
               )}
+            </div>
+          </div>
+        );
+      case 'settings':
+        return (
+          <div className="flex-1 p-8 font-mono space-y-12 h-full overflow-auto">
+            <div className="space-y-2 border-b border-border/20 pb-6">
+              <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
+                <SettingsIcon className="text-primary" />
+                System Configuration
+              </h2>
+              <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">
+                Kernel: v0.4.2-ALPHA // User: AUTHORIZED
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <section className="space-y-6">
+                <div className="flex items-center gap-2 text-[10px] text-primary uppercase tracking-[0.3em]">
+                  <Zap size={12} />
+                  Visual Spectrum
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  {THEMES.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => setTheme(t.id)}
+                      className={cn(
+                        "flex items-center justify-between p-4 border transition-all group",
+                        theme === t.id 
+                          ? "bg-primary/10 border-primary text-primary" 
+                          : "bg-black/20 border-white/5 text-muted-foreground hover:border-white/20"
+                      )}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div 
+                          className="w-3 h-3 rounded-full shadow-[0_0_8px_rgba(var(--primary-rgb),0.5)]" 
+                          style={{ backgroundColor: t.color }}
+                        />
+                        <span className="text-xs uppercase tracking-widest">{t.name}</span>
+                      </div>
+                      {theme === t.id && <Activity size={12} className="animate-pulse" />}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section className="space-y-6">
+                <div className="flex items-center gap-2 text-[10px] text-primary uppercase tracking-[0.3em]">
+                  <Info size={12} />
+                  Diagnostics
+                </div>
+                <div className="bg-black/40 border border-white/5 p-6 space-y-4">
+                  {[
+                    { label: 'Audio Engine', value: 'OK - WebAudio v2' },
+                    { label: 'FFT Resolution', value: '2048 SAMPLES' },
+                    { label: 'Visual Pipeline', value: 'CANVAS_2D_ASCII' },
+                    { label: 'Interface Latency', value: '< 2ms' },
+                    { label: 'Signal Path', value: 'STEREO_DISCRETE' }
+                  ].map((item, i) => (
+                    <div key={i} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0">
+                      <span className="text-[9px] uppercase tracking-widest text-muted-foreground/40">{item.label}</span>
+                      <span className="text-[10px] text-white/60">{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </div>
           </div>
         );

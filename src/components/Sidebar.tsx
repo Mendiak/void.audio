@@ -81,20 +81,16 @@ export function Sidebar() {
 
         <div className="mt-8 px-3">
           <h3 className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-[0.2em] mb-4">
-            Color Spectrum
+            Storage Status
           </h3>
-          <div className="flex items-center justify-between gap-2 px-1">
-            {themes.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTheme(t.id)}
-                className={cn(
-                  "w-4 h-4 rounded-full border border-white/10 transition-all hover:scale-125 active:scale-90 shadow-sm",
-                  theme === t.id ? "ring-2 ring-primary ring-offset-2 ring-offset-black" : ""
-                )}
-                style={{ backgroundColor: t.color }}
-              />
-            ))}
+          <div className="space-y-3 px-1">
+            <div className="flex justify-between text-[8px] font-mono text-muted-foreground/40 uppercase">
+              <span>Local Cache</span>
+              <span>84%</span>
+            </div>
+            <div className="h-0.5 bg-zinc-900 w-full overflow-hidden">
+              <div className="h-full bg-primary/20 w-[84%]" />
+            </div>
           </div>
         </div>
       </ScrollArea>
