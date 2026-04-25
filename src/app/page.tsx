@@ -1,65 +1,111 @@
-import Image from "next/image";
+'use client';
+
+import React from 'react';
+import { Sidebar } from '@/components/Sidebar';
+import { Player } from '@/components/Player';
+import { AsciiVisualizer } from '@/visuals/AsciiVisualizer';
+import { BootScreen } from '@/components/BootScreen';
+import { useAudio } from '@/store/AudioContext';
+import { motion } from 'framer-motion';
+import { Terminal, Activity, Zap } from 'lucide-react';
 
 export default function Home() {
+  const { loadTrack, isPlaying, trackInfo, playTone } = useAudio();
+
+  const [mounted, setMounted] = React.useState(false);
+  const nodeId = React.useMemo(() => Math.random().toString(16).slice(2, 8).toUpperCase(), []);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const handleStartSample = () => {
+    // Using a sample MP3 from a CDN for demonstration
+    loadTrack(
+      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+      'SIGNAL_ALPHA_01',
+      'VOID_SYSTEMS'
+    );
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="h-screen w-screen flex flex-col bg-background text-foreground overflow-hidden">
+      <BootScreen />
+
+      <div className="flex-1 flex overflow-hidden">
+        <Sidebar />
+        
+        <div className="flex-1 flex flex-col relative overflow-hidden bg-zinc-950">
+          {/* Header Bar */}
+          <div className="h-12 border-b border-border/50 px-6 flex items-center justify-between bg-black/20">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-[10px] font-mono text-primary/70 uppercase tracking-widest">
+                <Terminal size={12} />
+                <span>Console active</span>
+              </div>
+              <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest">
+                <Activity size={12} />
+                <span>Buffer: 100%</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground/30">
+              <span>LATENCY: 0.04ms</span>
+              <span>NODE_ID: {mounted ? nodeId : '------'}</span>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 p-6 relative">
+            {!isPlaying && trackInfo.title === 'NO SIGNAL' ? (
+              <div className="absolute inset-0 flex items-center justify-center flex-col gap-6">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex flex-col items-center gap-4 text-center"
+                >
+                  <div className="w-16 h-16 border border-primary/20 flex items-center justify-center bg-primary/5">
+                    <Zap size={32} className="text-primary animate-pulse" />
+                  </div>
+                  <h2 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">Initialize Signal</h2>
+                  <p className="text-xs text-muted-foreground max-w-xs font-mono">
+                    System awaiting audio input. Load local signal or connect to external stream.
+                  </p>
+                  <div className="flex gap-4">
+                    <button
+                      onClick={handleStartSample}
+                      className="px-6 py-2 border border-primary text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/10 transition-all active:scale-95"
+                    >
+                      Load External Signal
+                    </button>
+                    <button
+                      onClick={playTone}
+                      className="px-6 py-2 border border-white/20 text-white/50 text-xs font-mono uppercase tracking-widest hover:bg-white/5 transition-all active:scale-95"
+                    >
+                      Run System Diagnostic
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            ) : (
+              <AsciiVisualizer />
+            )}
+          </div>
+
+          {/* Background Text Layer */}
+          <div className="absolute bottom-10 left-10 pointer-events-none select-none opacity-5">
+            <h1 className="text-[120px] font-bold font-mono tracking-tighter leading-none">
+              VOID<br />AUDIO
+            </h1>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </div>
+
+      <Player />
+      
+      {/* Global Overlays */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(0,255,65,0.02)_0%,rgba(0,0,0,0)_100%)]" />
+      </div>
+    </main>
   );
 }

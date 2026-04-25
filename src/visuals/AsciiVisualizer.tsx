@@ -1,0 +1,105 @@
+'use client';
+
+import React, { useRef, useEffect } from 'react';
+import { useAudio } from '@/store/AudioContext';
+
+const ASCII_CHARS = ' .:-=+*#%@';
+
+export function AsciiVisualizer() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { engine, isPlaying } = useAudio();
+  const requestRef = useRef<number>(0);
+
+  const animate = () => {
+    if (!canvasRef.current || !engine) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const data = engine.getFrequencyData();
+    const timeData = engine.getTimeDomainData();
+
+    // Clear canvas
+    ctx.fillStyle = '#050505';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const charWidth = 10;
+    const charHeight = 18;
+    const cols = Math.floor(canvas.width / charWidth);
+    const rows = Math.floor(canvas.height / charHeight);
+
+    ctx.font = `${charHeight}px "Geist Mono", monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    for (let x = 0; x < cols; x++) {
+      const dataIdx = Math.floor((x / cols) * data.length);
+      const intensity = data[dataIdx] / 255;
+      
+      // Calculate how many characters to show in this column
+      const colHeight = Math.floor(intensity * rows);
+      
+      for (let y = 0; y < colHeight; y++) {
+        const charIdx = Math.floor((y / rows) * ASCII_CHARS.length);
+        const char = ASCII_CHARS[charIdx] || ' ';
+        
+        // Intensity-based color
+        const alpha = (y / colHeight) * 0.8 + 0.2;
+        ctx.fillStyle = `rgba(0, 255, 65, ${alpha})`;
+        
+        ctx.fillText(
+          char, 
+          x * charWidth + charWidth / 2, 
+          canvas.height - (y * charHeight + charHeight / 2)
+        );
+      }
+    }
+
+    // Waveform line in the middle
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < cols; i++) {
+      const v = timeData[Math.floor((i / cols) * timeData.length)] / 128.0;
+      const y = (v * canvas.height) / 2;
+      if (i === 0) ctx.moveTo(i * charWidth, y);
+      else ctx.lineTo(i * charWidth, y);
+    }
+    ctx.stroke();
+
+    requestRef.current = requestAnimationFrame(animate);
+  };
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [engine, isPlaying]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (canvasRef.current) {
+        canvasRef.current.width = canvasRef.current.offsetWidth;
+        canvasRef.current.height = canvasRef.current.offsetHeight;
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <div className="relative w-full h-full bg-black overflow-hidden terminal-border">
+      <canvas 
+        ref={canvasRef} 
+        className="w-full h-full opacity-80"
+      />
+      <div className="absolute top-4 left-4 font-mono text-[10px] text-primary/50 uppercase tracking-widest pointer-events-none">
+        Signal Analyzer / FFT Stream: Active
+      </div>
+      <div className="absolute bottom-4 right-4 font-mono text-[10px] text-primary/30 pointer-events-none">
+        VOID.AUDIO // V.0.1.0-ALPHA
+      </div>
+      <div className="scanline" />
+    </div>
+  );
+}
