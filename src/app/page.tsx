@@ -135,41 +135,86 @@ export default function Home() {
                     </tr>
                   </thead>
                   <tbody className="text-[11px] uppercase tracking-tight">
-                    {library.map((track) => (
-                      <tr 
-                        key={track.id} 
-                        className="border-b border-border/5 hover:bg-primary/5 group cursor-pointer transition-colors"
-                        onClick={() => loadLocalFile(track.file)}
-                      >
-                        <td className="p-4 text-primary/30 group-hover:text-primary transition-colors font-mono">
-                          {track.id.slice(0, 4)}
-                        </td>
-                        <td className="p-4 font-bold truncate max-w-[200px]">
-                          {track.title}
-                        </td>
-                        <td className="p-4 text-muted-foreground/50">
-                          {track.file.name.split('.').pop()?.toUpperCase() || 'RAW'}
-                        </td>
-                        <td className="p-4 text-muted-foreground/40">
-                          {track.artist}
-                        </td>
-                        <td className="p-4 text-right text-muted-foreground/30 font-mono">
-                          320 KBPS
-                        </td>
-                        <td className="p-4 text-right text-muted-foreground/30 font-mono">
-                          {(track.file.size / (1024 * 1024)).toFixed(2)} MB
-                        </td>
-                        <td className="p-4 text-right">
-                          <Activity size={12} className={cn(
-                            "inline-block transition-all",
-                            trackInfo.title === track.title ? "text-primary animate-pulse" : "text-muted-foreground/10 opacity-0 group-hover:opacity-100"
-                          )} />
-                        </td>
-                      </tr>
-                    ))}
+                    {library.map((track) => {
+                      const isActive = trackInfo.title === track.title;
+                      return (
+                        <tr 
+                          key={track.id} 
+                          className={cn(
+                            "border-b border-border/5 group cursor-pointer transition-colors",
+                            isActive ? "bg-primary/10" : "hover:bg-primary/5"
+                          )}
+                          onClick={() => loadLocalFile(track.file)}
+                        >
+                          <td className="p-4 text-primary/30 group-hover:text-primary transition-colors font-mono flex items-center gap-3">
+                            <div className={cn(
+                              "w-1.5 h-1.5 rounded-full transition-all duration-500",
+                              isActive 
+                                ? "bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" 
+                                : "bg-zinc-800 opacity-20 group-hover:opacity-100"
+                            )} />
+                            {track.id.slice(0, 4)}
+                          </td>
+                          <td className="p-4 font-bold truncate max-w-[200px]">
+                            {track.title}
+                          </td>
+                          <td className="p-4 text-muted-foreground/50">
+                            {track.file.name.split('.').pop()?.toUpperCase() || 'RAW'}
+                          </td>
+                          <td className="p-4 text-muted-foreground/40">
+                            {track.artist}
+                          </td>
+                          <td className="p-4 text-right text-muted-foreground/30 font-mono">
+                            320 KBPS
+                          </td>
+                          <td className="p-4 text-right text-muted-foreground/30 font-mono">
+                            {(track.file.size / (1024 * 1024)).toFixed(2)} MB
+                          </td>
+                          <td className="p-4 text-right">
+                            <Activity size={12} className={cn(
+                              "inline-block transition-all",
+                              isActive ? "text-primary animate-pulse" : "text-muted-foreground/10 opacity-0 group-hover:opacity-100"
+                            )} />
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               )}
+            </div>
+          </div>
+        );
+      case 'playlists':
+        return (
+          <div className="flex-1 p-12 font-mono space-y-8 h-full overflow-auto">
+            <div className="space-y-2 border-b border-border/20 pb-6">
+              <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
+                <Music className="text-primary" />
+                Signal Chains
+              </h2>
+              <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">
+                Active Streams: 03 // Local Chains
+              </div>
+            </div>
+            <div className="space-y-4">
+              {['Ambient Decay', 'Neural Beats', 'Static Void'].map((name, i) => (
+                <div key={i} className="flex items-center justify-between p-4 border border-border/10 bg-black/40 hover:border-primary/30 cursor-pointer group transition-all">
+                  <div className="flex items-center gap-6">
+                    <div className="w-1.5 h-1.5 rounded-full bg-zinc-800 group-hover:bg-primary/40 group-hover:shadow-[0_0_8px_var(--primary)] transition-all" />
+                    <span className="text-primary/20 group-hover:text-primary font-mono">0{i+1}</span>
+                    <span className="uppercase tracking-widest text-sm font-bold group-hover:text-primary transition-colors">{name}</span>
+                  </div>
+                  <div className="flex gap-4 items-center">
+                    <div className="flex gap-1">
+                      {[1, 2, 3].map(j => (
+                        <div key={j} className="w-0.5 h-3 bg-primary/10 group-hover:bg-primary/30 transition-colors" />
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground/20 uppercase tracking-widest">Active</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         );
@@ -240,60 +285,10 @@ export default function Home() {
             </div>
           </div>
         );
-      case 'playlists':
-        return (
-          <div className="flex-1 p-12 font-mono space-y-8 h-full overflow-auto">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
-                <Music className="text-primary" />
-                Signal Chains
-              </h2>
-              <div className="h-0.5 w-32 bg-primary/30" />
-            </div>
-            <div className="space-y-4">
-              {['Ambient Decay', 'Neural Beats', 'Static Void'].map((name, i) => (
-                <div key={i} className="flex items-center justify-between p-4 border border-border/20 hover:bg-white/5 cursor-pointer group">
-                  <div className="flex items-center gap-6">
-                    <span className="text-primary/20 group-hover:text-primary">0{i+1}</span>
-                    <span className="uppercase tracking-widest">{name}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="w-1 h-1 bg-primary/40" />
-                    <div className="w-1 h-1 bg-primary/40" />
-                    <div className="w-1 h-1 bg-primary/40" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'settings':
-        return (
-          <div className="flex-1 p-12 font-mono space-y-8 h-full overflow-auto">
-             <div className="space-y-2">
-              <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
-                <SettingsIcon className="text-primary" />
-                System Config
-              </h2>
-              <div className="h-0.5 w-32 bg-primary/30" />
-            </div>
-            <div className="max-w-md space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs text-muted-foreground uppercase tracking-widest">FFT Resolution</label>
-                <div className="flex gap-2">
-                  {[256, 512, 1024, 2048].map(size => (
-                    <button key={size} className={cn(
-                      "px-4 py-2 border text-[10px]",
-                      size === 1024 ? "border-primary text-primary bg-primary/10" : "border-border text-muted-foreground"
-                    )}>
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+      default:
+        return null;
+    }
+  };
       default:
         return null;
     }
