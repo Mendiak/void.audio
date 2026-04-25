@@ -12,7 +12,7 @@ const extractMetadata = async (file: File): Promise<{ title: string; artist: str
     let cover;
     const activePicture = mm.selectCover(picture);
     if (activePicture) {
-      const blob = new Blob([activePicture.data], { type: activePicture.format });
+      const blob = new Blob([new Uint8Array(activePicture.data)], { type: activePicture.format });
       cover = URL.createObjectURL(blob);
     }
     
