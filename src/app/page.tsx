@@ -193,7 +193,7 @@ export default function Home() {
                   Visual Spectrum
                 </div>
                 <div className="grid grid-cols-1 gap-3">
-                  {THEMES.map((t) => (
+                  {THEMES.map((t: { id: any; color: string; name: string }) => (
                     <button
                       key={t.id}
                       onClick={() => setTheme(t.id)}

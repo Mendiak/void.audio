@@ -2,8 +2,16 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type Theme = 'cyan' | 'pink' | 'amber' | 'green' | 'purple';
-type View = 'visuals' | 'library' | 'playlists' | 'settings';
+export type Theme = 'cyan' | 'pink' | 'amber' | 'green' | 'purple';
+export type View = 'visuals' | 'library' | 'playlists' | 'settings';
+
+export const THEMES = [
+  { id: 'cyan' as Theme, color: '#a2e4f1', name: 'CYAN_MOD' },
+  { id: 'pink' as Theme, color: '#ffb7c5', name: 'PINK_FLOWER' },
+  { id: 'amber' as Theme, color: '#ffd8a8', name: 'AMBER_GLOW' },
+  { id: 'green' as Theme, color: '#c1e1c1', name: 'SAGE_LEAF' },
+  { id: 'purple' as Theme, color: '#dcd3ff', name: 'VIOLET_DREAM' },
+];
 
 interface UIContextType {
   theme: Theme;
