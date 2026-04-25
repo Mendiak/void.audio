@@ -12,6 +12,50 @@ function formatTime(seconds: number) {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
+const BarVisualizer = ({ engine, isPlaying }: { engine: any, isPlaying: boolean }) => {
+  const [data, setData] = React.useState<Uint8Array>(new Uint8Array(12).fill(0));
+
+  React.useEffect(() => {
+    if (!isPlaying || !engine) {
+      if (!isPlaying) setData(new Uint8Array(12).fill(0));
+      return;
+    }
+
+    let animationFrameId: number;
+    const update = () => {
+      const freqData = engine.getFrequencyData();
+      if (freqData && freqData.length > 0) {
+        // Sample 12 points from the frequency data
+        const simplified = new Uint8Array(12);
+        const step = Math.floor(freqData.length / 24);
+        for (let i = 0; i < 12; i++) {
+          simplified[i] = freqData[i * step] || 0;
+        }
+        setData(simplified);
+      }
+      animationFrameId = requestAnimationFrame(update);
+    };
+
+    update();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isPlaying, engine]);
+
+  return (
+    <>
+      {Array.from(data).map((val, i) => (
+        <div 
+          key={i} 
+          className="w-[2px] bg-primary transition-all duration-75"
+          style={{ 
+            height: `${Math.max(2, (val / 255) * 100)}%`,
+            opacity: 0.3 + (val / 255) * 0.7
+          }}
+        />
+      ))}
+    </>
+  );
+};
+
 export function Player() {
   const { 
     isPlaying, 
@@ -21,7 +65,8 @@ export function Player() {
     trackInfo, 
     play, 
     pause, 
-    setVolume 
+    setVolume,
+    engine
   } = useAudio();
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -32,7 +77,7 @@ export function Player() {
       <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       
       {/* Track Info Container */}
-      <div className="w-64 shrink-0">
+      <div className="w-80 shrink-0">
         <div className="flex items-center gap-6">
           {/* Signal Identity (Cover Art Slot) */}
           <div className="relative group">
@@ -54,7 +99,7 @@ export function Player() {
             <div className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1 flex-1 min-w-0">
             <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.3em] flex items-center gap-2">
               <div className="w-1 h-1 bg-primary/40 rounded-full" />
               Signal Locked
@@ -62,8 +107,14 @@ export function Player() {
             <div className="text-sm font-bold tracking-tighter uppercase crt-glow truncate">
               {trackInfo.title}
             </div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">
-              {trackInfo.artist}
+            <div className="flex items-center gap-3">
+              <div className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">
+                {trackInfo.artist}
+              </div>
+              {/* Minimalist Bar Visualizer */}
+              <div className="flex items-end gap-[2px] h-3 shrink-0">
+                <BarVisualizer engine={engine} isPlaying={isPlaying} />
+              </div>
             </div>
           </div>
         </div>
