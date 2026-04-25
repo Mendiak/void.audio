@@ -59,6 +59,14 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     engineRef.current?.setVolume(v);
   };
 
+  useEffect(() => {
+    if (trackInfo.title !== 'NO SIGNAL') {
+      document.title = `${trackInfo.title} // VOID.AUDIO`;
+    } else {
+      document.title = 'VOID.AUDIO';
+    }
+  }, [trackInfo]);
+
   const loadTrack = async (url: string, title: string, artist: string) => {
     await engineRef.current?.loadTrack(url);
     setTrackInfo({ title, artist });
