@@ -143,6 +143,14 @@ export class AudioEngine {
       duration: this.buffer ? this.buffer.duration : 0,
     };
   }
+
+  getSystemMetrics() {
+    if (!this.context) return { latency: 0, sampleRate: 0 };
+    return {
+      latency: (this.context as any).baseLatency || 0,
+      sampleRate: this.context.sampleRate
+    };
+  }
 }
 
 export const engine = typeof window !== 'undefined' ? new AudioEngine() : null;

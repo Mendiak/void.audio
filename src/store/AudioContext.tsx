@@ -17,6 +17,7 @@ interface AudioContextType {
   loadLocalFile: (file: File) => Promise<void>;
   library: Array<{ id: string; file: File; title: string; artist: string; duration?: number }>;
   addToLibrary: (files: FileList | File[]) => void;
+  metrics: { latency: number; sampleRate: number };
   engine: AudioEngine | null;
 }
 
@@ -29,6 +30,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const [volume, setVolumeState] = useState(0.5);
   const [trackInfo, setTrackInfo] = useState({ title: 'NO SIGNAL', artist: 'UNKNOWN' });
   const [library, setLibrary] = useState<Array<{ id: string; file: File; title: string; artist: string; duration?: number }>>([]);
+  const [metrics, setMetrics] = useState({ latency: 0, sampleRate: 0 });
   
   const engineRef = useRef<AudioEngine | null>(null);
 
@@ -44,9 +46,11 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const timer = setInterval(() => {
       if (engineRef.current) {
         const state = engineRef.current.getPlaybackState();
+        const sysMetrics = engineRef.current.getSystemMetrics();
         setIsPlaying(state.isPlaying);
         setCurrentTime(state.currentTime);
         setDuration(state.duration);
+        setMetrics(sysMetrics);
       }
     }, 100);
     return () => clearInterval(timer);
@@ -108,6 +112,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       loadTrack,
       loadLocalFile,
       addToLibrary,
+      metrics,
       engine: engineRef.current
     }}>
       {children}

@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { Library, Settings, Music, BarChart2, Cpu } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useUI } from '@/store/UIContext';
+import { useAudio } from '@/store/AudioContext';
 import { cn } from '@/lib/utils';
 
 const LedIndicator = ({ active }: { active: boolean }) => (
@@ -19,6 +20,9 @@ const LedIndicator = ({ active }: { active: boolean }) => (
 
 export function Sidebar() {
   const { activeView, setActiveView, theme, setTheme } = useUI();
+  const { library } = useAudio();
+
+  const capacity = Math.min(Math.round((library.length / 50) * 100), 100);
 
   const menuItems = [
     { icon: Library, label: 'Library', id: 'library' },
@@ -81,15 +85,18 @@ export function Sidebar() {
 
         <div className="mt-8 px-3">
           <h3 className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-[0.2em] mb-4">
-            Storage Status
+            Archive Status
           </h3>
           <div className="space-y-3 px-1">
             <div className="flex justify-between text-[8px] font-mono text-muted-foreground/40 uppercase">
-              <span>Local Cache</span>
-              <span>84%</span>
+              <span>Archive Capacity</span>
+              <span>{capacity}%</span>
             </div>
             <div className="h-0.5 bg-zinc-900 w-full overflow-hidden">
-              <div className="h-full bg-primary/20 w-[84%]" />
+              <div 
+                className="h-full bg-primary/20 transition-all duration-500" 
+                style={{ width: `${capacity}%` }}
+              />
             </div>
           </div>
         </div>

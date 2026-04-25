@@ -12,7 +12,7 @@ import { Terminal, Activity, Zap, Package, Music, Settings as SettingsIcon, Info
 import { cn } from '@/lib/utils';
 
 export default function Home() {
-  const { loadTrack, loadLocalFile, isPlaying, trackInfo, playTone, library, addToLibrary } = useAudio();
+  const { loadTrack, loadLocalFile, isPlaying, trackInfo, playTone, library, addToLibrary, metrics } = useAudio();
   const { activeView, theme, setTheme } = useUI();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -316,11 +316,11 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest">
                 <Activity size={12} />
-                <span>Buffer: 100%</span>
+                <span>Rate: {metrics.sampleRate ? `${(metrics.sampleRate / 1000).toFixed(1)}kHz` : '---'}</span>
               </div>
             </div>
             <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground/30">
-              <span>LATENCY: 0.04ms</span>
+              <span>LATENCY: {(metrics.latency * 1000).toFixed(2)}ms</span>
               <span>NODE_ID: {mounted ? nodeId : '------'}</span>
             </div>
           </div>
