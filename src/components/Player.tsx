@@ -33,23 +33,41 @@ export function Player() {
       
       {/* Track Info */}
       <div className="w-64 flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-0.5 items-end h-3">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className={cn(
-                "w-0.5 bg-primary/20",
-                isPlaying ? "animate-[pulse_1s_infinite]" : "",
-                i === 1 ? "h-1" : i === 2 ? "h-2" : i === 3 ? "h-3" : "h-2"
-              )} style={{ animationDelay: `${i * 0.2}s` }} />
-            ))}
+      <div className="w-64">
+        <div className="flex items-center gap-6">
+          {/* Signal Identity (Cover Art Slot) */}
+          <div className="relative group">
+            <div className="w-12 h-12 border border-primary/20 bg-primary/5 flex items-center justify-center overflow-hidden relative">
+              {/* Decorative Scanline */}
+              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none" />
+              
+              {/* Placeholder Graphic */}
+              <div className="w-6 h-6 border-2 border-primary/10 rotate-45 flex items-center justify-center group-hover:rotate-90 transition-transform duration-700">
+                <div className="w-2 h-2 bg-primary/20 animate-pulse" />
+              </div>
+
+              {/* Technical Corners */}
+              <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40" />
+              <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-primary/40" />
+            </div>
+            
+            {/* Status LED */}
+            <div className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" />
           </div>
-          <span className="text-[10px] font-mono text-primary uppercase tracking-[0.2em] truncate crt-glow">
-            {trackInfo.title}
-          </span>
+
+          <div className="space-y-1">
+            <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.3em] flex items-center gap-2">
+              <div className="w-1 h-1 bg-primary/40 rounded-full" />
+              Signal Locked
+            </div>
+            <div className="text-sm font-bold tracking-tighter uppercase crt-glow">
+              {trackInfo.title}
+            </div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-widest">
+              {trackInfo.artist}
+            </div>
+          </div>
         </div>
-        <span className="text-[9px] font-mono text-muted-foreground/40 uppercase tracking-widest truncate">
-          {trackInfo.artist}
-        </span>
       </div>
 
       {/* Controls & Progress */}
