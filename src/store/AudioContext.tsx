@@ -14,6 +14,7 @@ interface AudioContextType {
   playTone: () => void;
   setVolume: (v: number) => void;
   loadTrack: (url: string, title: string, artist: string) => Promise<void>;
+  loadLocalFile: (file: File) => Promise<void>;
   engine: AudioEngine | null;
 }
 
@@ -73,6 +74,12 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     engineRef.current?.play();
   };
 
+  const loadLocalFile = async (file: File) => {
+    await engineRef.current?.loadLocalFile(file);
+    setTrackInfo({ title: file.name.toUpperCase(), artist: 'LOCAL_SIGNAL' });
+    engineRef.current?.play();
+  };
+
   return (
     <AudioContext.Provider value={{
       isPlaying,
@@ -85,6 +92,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       playTone,
       setVolume,
       loadTrack,
+      loadLocalFile,
       engine: engineRef.current
     }}>
       {children}

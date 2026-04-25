@@ -48,6 +48,14 @@ export class AudioEngine {
     }
   }
 
+  async loadLocalFile(file: File) {
+    this.initContext();
+    const arrayBuffer = await file.arrayBuffer();
+    this.buffer = await this.context!.decodeAudioData(arrayBuffer);
+    this.stop();
+    this.pauseTime = 0;
+  }
+
   playTone() {
     this.initContext();
     this.stop();

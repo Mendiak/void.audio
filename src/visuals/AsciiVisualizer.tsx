@@ -32,20 +32,21 @@ export function AsciiVisualizer() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
+    // Get current primary color from CSS
+    const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary').trim();
+
     for (let x = 0; x < cols; x++) {
       const dataIdx = Math.floor((x / cols) * data.length);
       const intensity = data[dataIdx] / 255;
       
-      // Calculate how many characters to show in this column
       const colHeight = Math.floor(intensity * rows);
       
       for (let y = 0; y < colHeight; y++) {
         const charIdx = Math.floor((y / rows) * ASCII_CHARS.length);
         const char = ASCII_CHARS[charIdx] || ' ';
         
-        // Intensity-based color
         const alpha = (y / colHeight) * 0.8 + 0.2;
-        ctx.fillStyle = `rgba(0, 255, 65, ${alpha})`;
+        ctx.fillStyle = `${primaryColor}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
         
         ctx.fillText(
           char, 
@@ -55,9 +56,9 @@ export function AsciiVisualizer() {
       }
     }
 
-    // Waveform line in the middle
+    // Waveform line
     ctx.beginPath();
-    ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+    ctx.strokeStyle = `${primaryColor}44`;
     ctx.lineWidth = 1;
     for (let i = 0; i < cols; i++) {
       const v = timeData[Math.floor((i / cols) * timeData.length)] / 128.0;

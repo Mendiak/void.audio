@@ -12,10 +12,6 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   
-  --color-accent-green: #00ff41;
-  --color-accent-amber: #ffb000;
-  --color-accent-cyan: #00ffff;
-  
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -23,28 +19,38 @@
 
 :root {
   --background: #050505;
-  --foreground: #e0e0e0;
-  
-  --primary: #00ff41;
+  --foreground: #d1d1d1;
+  --primary: #a8dadc; /* Muted Cyan */
   --primary-foreground: #050505;
-  
-  --secondary: #1a1a1a;
-  --secondary-foreground: #e0e0e0;
-  
-  --muted: #111111;
-  --muted-foreground: #888888;
-  
-  --accent: #222222;
-  --accent-foreground: #ffffff;
-  
-  --destructive: #ff4444;
-  --destructive-foreground: #ffffff;
-  
-  --border: #222222;
-  --input: #1a1a1a;
-  --ring: #00ff41;
-  
-  --radius: 0px; /* Sharp edges for terminal look */
+  --border: #1a1a1a;
+  --input: #0a0a0a;
+  --ring: var(--primary);
+  --radius: 0px;
+}
+
+.theme-pink {
+  --primary: #ffb7c5; /* Pastel Pink */
+  --ring: #ffb7c5;
+}
+
+.theme-amber {
+  --primary: #ffd8a8; /* Soft Amber */
+  --ring: #ffd8a8;
+}
+
+.theme-green {
+  --primary: #c1e1c1; /* Sage Green */
+  --ring: #c1e1c1;
+}
+
+.theme-purple {
+  --primary: #dcd3ff; /* Lavender */
+  --ring: #dcd3ff;
+}
+
+.theme-cyan {
+  --primary: #a2e4f1; /* Pastel Cyan */
+  --ring: #a2e4f1;
 }
 
 @layer base {
@@ -52,10 +58,10 @@
     @apply border-border outline-ring/30;
   }
   body {
-    @apply bg-background text-foreground font-mono selection:bg-primary/30 selection:text-primary antialiased overflow-hidden;
+    @apply bg-background text-foreground font-mono selection:bg-primary/20 selection:text-primary antialiased overflow-hidden;
     background-image: 
-      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-      linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.005), rgba(0, 0, 255, 0.01));
     background-size: 100% 4px, 3px 100%;
   }
   
