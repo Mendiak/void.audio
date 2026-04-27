@@ -22,7 +22,11 @@ const VUMeter = ({ engine, isPlaying }: { engine: any, isPlaying: boolean }) => 
     const update = () => {
       if (engine && isPlaying) {
         const newLevels = engine.getStereoLevels();
-        setLevels(newLevels);
+        // Boost levels slightly for better visual feedback if they are too quiet
+        setLevels({
+          l: Math.min(newLevels.l * 1.2, 1),
+          r: Math.min(newLevels.r * 1.2, 1)
+        });
       } else {
         setLevels({ l: 0, r: 0 });
       }
@@ -33,23 +37,32 @@ const VUMeter = ({ engine, isPlaying }: { engine: any, isPlaying: boolean }) => 
   }, [engine, isPlaying]);
 
   const renderBar = (level: number) => {
-    const segments = 15;
+    const segments = 24; // Increased from 15 for a wider look
     return (
-      <div className="flex gap-[2px] h-3 items-end">
+      <div className="flex gap-[1.5px] h-3.5 items-end">
         {Array.from({ length: segments }).map((_, i) => {
           const threshold = i / segments;
           const isActive = level > threshold;
-          let color = 'bg-green-500/20';
+          let color = 'bg-zinc-800/40'; // Base color for inactive
+          
           if (isActive) {
-            if (i > segments * 0.9) color = 'bg-red-500 shadow-[0_0_8px_#ef4444]';
-            else if (i > segments * 0.7) color = 'bg-yellow-400 shadow-[0_0_8px_#facc15]';
-            else color = 'bg-green-400 shadow-[0_0_8px_#4ade80]';
+            // New color thresholds for more "liveliness"
+            if (i > segments * 0.85) color = 'bg-red-500 shadow-[0_0_10px_#ef4444]'; // Peak
+            else if (i > segments * 0.65) color = 'bg-orange-500 shadow-[0_0_8px_#f97316]'; // High
+            else if (i > segments * 0.45) color = 'bg-yellow-400 shadow-[0_0_8px_#facc15]'; // Mid
+            else color = 'bg-green-400 shadow-[0_0_8px_#4ade80]'; // Normal
           }
+          
           return (
             <div 
               key={i} 
-              className={cn("w-1 h-full transition-all duration-75", color)}
-              style={{ opacity: isActive ? 1 : 0.1 }}
+              className={cn(
+                "w-1.5 h-full transition-all duration-75 rounded-[0.5px]", 
+                color
+              )}
+              style={{ 
+                opacity: isActive ? 1 : 0.1
+              }}
             />
           );
         })}
@@ -58,13 +71,13 @@ const VUMeter = ({ engine, isPlaying }: { engine: any, isPlaying: boolean }) => 
   };
 
   return (
-    <div className="flex flex-col gap-1.5 bg-black/40 p-2 border border-white/5 rounded-sm">
+    <div className="flex flex-col gap-2 bg-[#050505] p-3 border border-white/5 rounded-sm shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)]">
       <div className="flex items-center gap-3">
-        <span className="text-[7px] font-mono text-white/20 w-2">L</span>
+        <span className="text-[6px] font-mono text-white/30 w-2">L</span>
         {renderBar(levels.l)}
       </div>
       <div className="flex items-center gap-3">
-        <span className="text-[7px] font-mono text-white/20 w-2">R</span>
+        <span className="text-[6px] font-mono text-white/30 w-2">R</span>
         {renderBar(levels.r)}
       </div>
     </div>
@@ -90,66 +103,81 @@ export function Player() {
   } = useAudio();
 
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="h-32 border-t border-white/5 bg-[#1a1a1a] flex items-center px-8 gap-8 relative overflow-hidden shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+    <div className="h-32 border-t-2 border-white/10 bg-[#1a1b1c] flex items-center px-10 gap-0 relative overflow-hidden shrink-0 shadow-[0_-15px_50px_rgba(0,0,0,0.6)]">
       {/* Retro Metal Texture Overlay */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
       
+      {/* Hardware Screw Details */}
+      <div className="absolute top-3 left-3 w-1.5 h-1.5 rounded-full bg-zinc-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.5)] border border-black/40" />
+      <div className="absolute bottom-3 left-3 w-1.5 h-1.5 rounded-full bg-zinc-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.5)] border border-black/40" />
+      <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-zinc-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.5)] border border-black/40" />
+      <div className="absolute bottom-3 right-3 w-1.5 h-1.5 rounded-full bg-zinc-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.5)] border border-black/40" />
+
       {/* Signal Identity Slot */}
-      <div className="w-80 shrink-0 flex items-center gap-4">
+      <div className="w-80 shrink-0 flex items-center gap-5 pr-10">
         <div 
           className="relative group cursor-pointer" 
           onClick={() => setIsExpanded(true)}
         >
-          <div className="w-16 h-16 bg-black rounded-sm overflow-hidden shadow-2xl border border-white/10 flex items-center justify-center">
+          <div className="w-16 h-16 bg-black rounded-sm overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.8),inset_0_0_10px_rgba(255,255,255,0.05)] border border-white/10 flex items-center justify-center relative">
             {trackInfo.cover ? (
-              <img src={trackInfo.cover} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+              <img src={trackInfo.cover} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-zinc-900">
                 <Activity className="w-8 h-8 text-white/10 animate-pulse" />
               </div>
             )}
+            <div className="absolute inset-0 pointer-events-none border-t border-white/5" />
           </div>
           {/* Bezel */}
-          <div className="absolute -inset-1 border border-white/5 rounded-sm pointer-events-none" />
+          <div className="absolute -inset-1.5 border border-black/60 rounded-sm pointer-events-none shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]" />
         </div>
 
-        <div className="flex-1 min-w-0 bg-black/20 p-3 rounded border border-white/5 relative overflow-hidden group/info">
-          <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/50 group-hover/info:bg-orange-500 transition-colors" />
-          <div className="text-[9px] font-mono text-white/30 uppercase tracking-[0.2em] truncate mb-1">
-            {trackInfo.artist || 'NO SIGNAL'}
+        <div className="flex-1 min-w-0 bg-[#0a0a0a] p-3 rounded-sm border-t border-l border-white/5 border-b border-r border-black/40 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] relative overflow-hidden group/info">
+          {/* VFD Screen Glass Effect */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+          <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/30 group-hover/info:bg-orange-500 transition-colors shadow-[0_0_10px_rgba(249,115,22,0.2)]" />
+          
+          <div className="text-[8px] font-mono text-orange-500/40 uppercase tracking-[0.3em] truncate mb-1">
+            SOURCE: {trackInfo.artist || 'NO_SIGNAL'}
           </div>
-          <div className="text-xs font-bold text-white/90 uppercase tracking-wider truncate leading-none">
+          <div className="text-xs font-bold text-orange-500/80 uppercase tracking-widest truncate leading-none font-mono drop-shadow-[0_0_3px_rgba(249,115,22,0.4)]">
             {trackInfo.title || 'IDLE_PROCESS'}
           </div>
         </div>
       </div>
 
-      {/* Main Controls - Skeuomorphic Cluster */}
-      <div className="flex-1 flex flex-col gap-5 max-w-2xl">
-        <div className="flex items-center justify-center gap-6">
-          <EPButton variant="white" size="sm" onClick={previousTrack}>
-            PREV
-          </EPButton>
-          
-          <EPButton 
-            variant="orange" 
-            size="md"
-            onClick={isPlaying ? pause : play}
-          >
-            {isPlaying ? 'PAUSE' : 'PLAY'}
-          </EPButton>
+      {/* Hardware Groove */}
+      <div className="w-[2px] h-20 bg-black/40 shadow-[1px_0_0_rgba(255,255,255,0.05)]" />
 
-          <EPButton variant="white" size="sm" onClick={nextTrack}>
-            NEXT
-          </EPButton>
+      {/* Main Controls - Skeuomorphic Cluster */}
+      <div className="flex-1 flex flex-col gap-4 max-w-2xl px-12">
+        <div className="flex flex-col items-center gap-4">
+          <span className="text-[7px] font-mono text-white/20 uppercase tracking-[0.5em] -mb-2">Navigation System</span>
+          <div className="flex items-center justify-center gap-5">
+            <EPButton variant="white" size="sm" onClick={previousTrack}>
+              PREV
+            </EPButton>
+            
+            <EPButton 
+              variant="orange" 
+              size="md"
+              onClick={isPlaying ? pause : play}
+            >
+              {isPlaying ? 'PAUSE' : 'PLAY'}
+            </EPButton>
+
+            <EPButton variant="white" size="sm" onClick={nextTrack}>
+              NEXT
+            </EPButton>
+          </div>
         </div>
 
         {/* Tactile Progress Bar */}
         <div className="flex items-center gap-4 group">
-          <span className="text-[9px] font-mono text-white/40 w-10 text-right tabular-nums">
+          <span className="text-[9px] font-mono text-white/30 w-10 text-right tabular-nums">
             {formatTime(currentTime)}
           </span>
           <div className="flex-1 relative h-6 flex items-center group/slider">
@@ -162,23 +190,28 @@ export function Player() {
               className="flex-1"
             />
           </div>
-          <span className="text-[9px] font-mono text-white/40 w-10 tabular-nums">
+          <span className="text-[9px] font-mono text-white/30 w-10 tabular-nums">
             {formatTime(duration)}
           </span>
         </div>
       </div>
 
+      {/* Hardware Groove */}
+      <div className="w-[2px] h-20 bg-black/40 shadow-[1px_0_0_rgba(255,255,255,0.05)]" />
+
       {/* VU Meter & Volume Cluster */}
-      <div className="w-80 flex items-center justify-end gap-8">
-        <VUMeter engine={engine} isPlaying={isPlaying} />
+      <div className="w-[450px] shrink-0 flex items-center justify-end gap-8 pl-10 relative">
+        <div className="flex flex-col gap-2 items-center shrink-0">
+          <span className="text-[7px] font-mono text-white/20 uppercase tracking-[0.4em]">Signal Level</span>
+          <VUMeter engine={engine} isPlaying={isPlaying} />
+        </div>
         
-        <div className="flex flex-col gap-3 w-32">
-          <div className="flex justify-between items-center text-[8px] font-mono text-white/20 uppercase tracking-widest">
-            <span>Level</span>
-            <span className="text-white/40">{Math.round(volume * 100)} dB</span>
+        <div className="flex flex-col gap-3 flex-1 min-w-[140px]">
+          <div className="flex justify-between items-center text-[7px] font-mono text-white/20 uppercase tracking-[0.3em]">
+            <span>Output</span>
+            <span className="text-white/40">{Math.round(volume * 100)}%</span>
           </div>
           
-          {/* Skeuomorphic Slider Track */}
           <div className="relative h-6 flex items-center">
             <SkeuoSlider 
               value={[volume * 100]} 
@@ -188,6 +221,15 @@ export function Player() {
               className="flex-1"
             />
           </div>
+        </div>
+
+        {/* Power LED */}
+        <div className="absolute top-[-10px] right-0 flex flex-col items-center gap-1">
+          <div className={cn(
+            "w-1.5 h-1.5 rounded-full transition-all duration-500",
+            isPlaying ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" : "bg-red-950"
+          )} />
+          <span className="text-[6px] font-mono text-white/10 uppercase">Active</span>
         </div>
       </div>
 
