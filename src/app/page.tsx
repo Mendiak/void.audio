@@ -3,7 +3,7 @@
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Player } from '@/components/Player';
-import { AsciiVisualizer } from '@/visuals/AsciiVisualizer';
+import { VisualizerContainer } from '@/visuals/VisualizerContainer';
 import { BootScreen } from '@/components/BootScreen';
 import { useAudio } from '@/store/AudioContext';
 import { useUI, THEMES } from '@/store/UIContext';
@@ -69,7 +69,7 @@ export default function Home() {
                 </motion.div>
               </div>
             ) : (
-              <AsciiVisualizer />
+              <VisualizerContainer />
             )}
           </div>
         );

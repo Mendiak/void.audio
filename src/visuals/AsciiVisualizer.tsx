@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { useAudio } from '@/store/AudioContext';
 
 const ASCII_CHARS = ' .:-=+*#%@';
+const TECH_CHARS = '01{}[]|\\/-_';
 
 export function AsciiVisualizer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -19,36 +20,57 @@ export function AsciiVisualizer() {
     const data = engine.getFrequencyData();
     const timeData = engine.getTimeDomainData();
 
-    // Clear canvas
-    ctx.fillStyle = '#050505';
+    // Clear with trail effect
+    ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const charWidth = 10;
-    const charHeight = 18;
+    // Draw grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.lineWidth = 1;
+    const gridSize = 40;
+    for (let x = 0; x < canvas.width; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < canvas.height; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+
+    const charWidth = 12;
+    const charHeight = 20;
     const cols = Math.floor(canvas.width / charWidth);
     const rows = Math.floor(canvas.height / charHeight);
 
-    ctx.font = `${charHeight}px "Geist Mono", monospace`;
+    ctx.font = `bold ${charHeight - 4}px "Geist Mono", monospace`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Get current primary color from CSS
     const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary').trim();
 
     for (let x = 0; x < cols; x++) {
-      // Skip the first 3 bins which often have extreme energy (DC offset / sub-bass noise)
-      const offset = 3;
-      const dataIdx = offset + Math.floor((x / cols) * (data.length - offset));
+      const offset = 2;
+      const dataIdx = offset + Math.floor((x / cols) * (data.length / 2));
       const intensity = data[dataIdx] / 255;
       
-      const colHeight = Math.floor(intensity * rows);
+      const colHeight = Math.floor(intensity * rows * 1.2);
       
       for (let y = 0; y < colHeight; y++) {
-        const charIdx = Math.floor((y / rows) * ASCII_CHARS.length);
-        const char = ASCII_CHARS[charIdx] || ' ';
+        const char = TECH_CHARS[Math.floor(Math.random() * TECH_CHARS.length)];
         
-        const alpha = (y / colHeight) * 0.8 + 0.2;
-        ctx.fillStyle = `${primaryColor}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
+        const distFromTop = y / colHeight;
+        const alpha = distFromTop * 0.8 + 0.2;
+        
+        // Randomly flicker some characters
+        if (Math.random() > 0.95) {
+          ctx.fillStyle = '#fff';
+        } else {
+          ctx.fillStyle = `${primaryColor}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
+        }
         
         ctx.fillText(
           char, 
@@ -56,17 +78,30 @@ export function AsciiVisualizer() {
           canvas.height - (y * charHeight + charHeight / 2)
         );
       }
+      
+      // Top "peak" character
+      if (colHeight > 0) {
+        ctx.fillStyle = '#fff';
+        ctx.fillText(
+          '#', 
+          x * charWidth + charWidth / 2, 
+          canvas.height - (colHeight * charHeight + charHeight / 2)
+        );
+      }
     }
 
-    // Waveform line
+    // Centered Oscilloscope Line
     ctx.beginPath();
-    ctx.strokeStyle = `${primaryColor}44`;
-    ctx.lineWidth = 1;
-    for (let i = 0; i < cols; i++) {
-      const v = timeData[Math.floor((i / cols) * timeData.length)] / 128.0;
-      const y = (v * canvas.height) / 2;
-      if (i === 0) ctx.moveTo(i * charWidth, y);
-      else ctx.lineTo(i * charWidth, y);
+    ctx.strokeStyle = `${primaryColor}88`;
+    ctx.lineWidth = 2;
+    const centerY = canvas.height / 2;
+    for (let i = 0; i < canvas.width; i += 2) {
+      const idx = Math.floor((i / canvas.width) * timeData.length);
+      const v = timeData[idx] / 128.0;
+      const y = centerY + (v - 1) * 100;
+      
+      if (i === 0) ctx.moveTo(i, y);
+      else ctx.lineTo(i, y);
     }
     ctx.stroke();
 

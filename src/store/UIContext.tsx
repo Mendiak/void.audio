@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type Theme = 'cyan' | 'pink' | 'amber' | 'green' | 'purple';
 export type View = 'visuals' | 'library' | 'playlists' | 'settings';
+export type VisualMode = 'ascii' | 'oscilloscope' | 'spectrum' | 'matrix';
 
 export const THEMES = [
   { id: 'cyan' as Theme, color: '#a2e4f1', name: 'CYAN_MOD' },
@@ -18,6 +19,8 @@ interface UIContextType {
   setTheme: (t: Theme) => void;
   activeView: View;
   setActiveView: (v: View) => void;
+  visualMode: VisualMode;
+  setVisualMode: (m: VisualMode) => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
@@ -25,6 +28,7 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 export function UIProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('cyan');
   const [activeView, setActiveView] = useState<View>('library');
+  const [visualMode, setVisualMode] = useState<VisualMode>('ascii');
 
   useEffect(() => {
     // Apply theme to document element
@@ -39,7 +43,14 @@ export function UIProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   return (
-    <UIContext.Provider value={{ theme, setTheme, activeView, setActiveView }}>
+    <UIContext.Provider value={{ 
+      theme, 
+      setTheme, 
+      activeView, 
+      setActiveView,
+      visualMode,
+      setVisualMode
+    }}>
       {children}
     </UIContext.Provider>
   );
