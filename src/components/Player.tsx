@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAudio } from '@/store/AudioContext';
-import { Slider } from '@/components/ui/slider';
+import { SkeuoSlider } from '@/components/ui/SkeuoSlider';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -204,17 +204,13 @@ export function Player() {
             {formatTime(currentTime)}
           </span>
           <div className="flex-1 relative h-6 flex items-center group/slider">
-            <Slider 
+            <SkeuoSlider 
               value={[currentTime]} 
               max={duration || 100} 
               step={0.1}
-              onValueChange={(v) => {
-                const val = Array.isArray(v) ? v[0] : v;
-                if (typeof val === 'number') {
-                  seek(val);
-                }
-              }}
-              className="relative z-10"
+              onValueChange={(v) => seek(v[0])}
+              variant="blue"
+              className="flex-1"
             />
           </div>
           <span className="text-[9px] font-mono text-white/20 w-10">
@@ -235,16 +231,12 @@ export function Player() {
           
           {/* Skeuomorphic Slider Track */}
           <div className="relative h-6 flex items-center">
-            <Slider 
+            <SkeuoSlider 
               value={[volume * 100]} 
               max={100} 
-              onValueChange={(v) => {
-                const val = Array.isArray(v) ? v[0] : v;
-                if (typeof val === 'number') {
-                  setVolume(val / 100);
-                }
-              }}
-              className="relative z-10"
+              onValueChange={(v) => setVolume(v[0] / 100)}
+              variant="green"
+              className="flex-1"
             />
           </div>
         </div>
