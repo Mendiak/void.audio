@@ -102,63 +102,12 @@ export function Player() {
               </div>
             )}
             
-            {/* HUD Overlays */}
-            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-8">
-              {/* Top Row: Meta & Diagnostics */}
-              <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary animate-ping rounded-full" />
-                    <span className="text-[10px] text-primary uppercase tracking-[0.4em] font-mono">Signal_Diagnostic_Active</span>
-                  </div>
-                  <h2 className="text-3xl font-bold uppercase tracking-tighter crt-glow text-white/90">{trackInfo.title}</h2>
-                  <div className="text-xs text-primary/60 uppercase tracking-widest font-mono">{trackInfo.artist}</div>
-                </div>
-                
-                <div className="bg-black/60 border border-primary/20 backdrop-blur-md p-4 space-y-2 min-w-[140px]">
-                  <div className="text-[8px] text-primary/40 uppercase tracking-widest border-b border-primary/10 pb-1 mb-2">Sync_Metrics</div>
-                  <div className="flex justify-between text-[10px] font-mono">
-                    <span className="text-primary/40">POS:</span>
-                    <span className="text-primary">{formatTime(currentTime)}</span>
-                  </div>
-                  <div className="flex justify-between text-[10px] font-mono">
-                    <span className="text-primary/40">LEN:</span>
-                    <span className="text-primary">{formatTime(duration)}</span>
-                  </div>
-                  <div className="flex justify-between text-[10px] font-mono">
-                    <span className="text-primary/40">FRQ:</span>
-                    <span className="text-primary">{(metrics.sampleRate / 1000).toFixed(1)}kHz</span>
-                  </div>
-                </div>
+            {/* Simple Info Overlay */}
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-end p-8 bg-gradient-to-t from-black/80 to-transparent">
+              <div className="space-y-1">
+                <h2 className="text-3xl font-bold uppercase tracking-tighter text-white/90">{trackInfo.title}</h2>
+                <div className="text-xs text-primary/60 uppercase tracking-widest font-mono">{trackInfo.artist}</div>
               </div>
-
-              {/* Grid lines effect */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#var(--primary)_1px,transparent_1px),linear-gradient(to_bottom,#var(--primary)_1px,transparent_1px)] bg-[size:40px_40px] opacity-[0.03]" />
-
-              {/* Bottom Row: Hardware Status */}
-              <div className="flex justify-between items-end">
-                <div className="text-[8px] font-mono text-primary/30 max-w-[200px] leading-relaxed">
-                  CORE_ANALYSIS_COMPLETE // SIGNAL_STABILITY: NOMINAL // 
-                  DECRYPTING_METADATA_STREAM... DONE
-                </div>
-                <div className="flex gap-4">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="w-1 h-4 bg-primary/10 relative overflow-hidden">
-                      <motion.div 
-                        animate={{ y: [16, -16] }}
-                        transition={{ duration: 1 + Math.random(), repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 bg-primary/40"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Technical Corners */}
-              <div className="absolute top-0 left-0 w-12 h-12 border-t border-l border-primary/40" />
-              <div className="absolute top-0 right-0 w-12 h-12 border-t border-r border-primary/40" />
-              <div className="absolute bottom-0 left-0 w-12 h-12 border-b border-l border-primary/40" />
-              <div className="absolute bottom-0 right-0 w-12 h-12 border-b border-r border-primary/40" />
             </div>
 
             <button 
@@ -190,29 +139,17 @@ export function Player() {
                   className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-700"
                 />
               ) : (
-                /* Placeholder Graphic */
                 <div className="w-6 h-6 border-2 border-primary/10 rotate-45 flex items-center justify-center group-hover:rotate-90 transition-transform duration-700">
                   <div className="w-2 h-2 bg-primary/20 animate-pulse" />
                 </div>
               )}
-              
-              {/* Decorative Scanline */}
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%] pointer-events-none z-10" />
-
-              {/* Technical Corners */}
-              <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40 z-20" />
-              <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-primary/40 z-20" />
             </div>
             
-            {/* Status LED */}
-            <div className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)] z-30" />
+
           </div>
 
           <div className="space-y-1 flex-1 min-w-0">
-            <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.3em] flex items-center gap-2">
-              <div className="w-1 h-1 bg-primary/40 rounded-full" />
-              Signal Locked
-            </div>
+
             <div className="text-sm font-bold tracking-tighter uppercase crt-glow truncate">
               {trackInfo.title}
             </div>
@@ -273,7 +210,7 @@ export function Player() {
       <div className="w-64 flex items-center justify-end gap-6">
         <div className="flex flex-col gap-1 w-32">
           <div className="flex justify-between items-center text-[7px] font-mono text-muted-foreground/30 uppercase tracking-[0.2em]">
-            <span>Output Level</span>
+            <span>Volume</span>
             <span>{Math.round(volume * 100)}%</span>
           </div>
           <div className="flex items-center gap-2">
@@ -291,20 +228,7 @@ export function Player() {
           </div>
         </div>
         
-        {/* Hardware Status LEDs */}
-        <div className="flex gap-2">
-          <div className="flex flex-col gap-1 items-center">
-            <div className="w-1 h-1 rounded-full bg-primary shadow-[0_0_4px_var(--primary)]" />
-            <span className="text-[6px] font-mono text-muted-foreground/20 uppercase">PWR</span>
-          </div>
-          <div className="flex flex-col gap-1 items-center">
-            <div className={cn(
-              "w-1 h-1 rounded-full",
-              isPlaying ? "bg-primary shadow-[0_0_4px_var(--primary)]" : "bg-zinc-800"
-            )} />
-            <span className="text-[6px] font-mono text-muted-foreground/20 uppercase">SIG</span>
-          </div>
-        </div>
+
       </div>
     </div>
   );

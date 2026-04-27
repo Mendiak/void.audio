@@ -69,16 +69,11 @@ export function Sidebar() {
           <div className="w-2 h-2 bg-primary shadow-[0_0_8px_var(--primary)]" />
           <h1 className="text-lg font-mono font-bold tracking-[0.1em] uppercase crt-glow">VOID.AUDIO</h1>
         </motion.div>
-        <div className="flex items-center gap-2 text-[9px] font-mono text-muted-foreground/40 uppercase tracking-widest">
-          <Cpu size={10} />
-          <span>Kernel: v2.4.0</span>
-        </div>
+        <div className="h-4" />
       </div>
 
       <ScrollArea className="flex-1 px-3 py-4">
-        <div className="px-3 mb-4 text-[10px] font-mono text-muted-foreground/30 uppercase tracking-[0.3em]">
-          Data Nodes
-        </div>
+
         <div className="space-y-1">
           {menuItems.map((item) => (
             <button
@@ -102,37 +97,10 @@ export function Sidebar() {
           ))}
         </div>
 
-        <div className="mt-8 px-3">
-          <h3 className="text-[10px] font-mono text-muted-foreground/30 uppercase tracking-[0.2em] mb-4">
-            Archive Status
-          </h3>
-          <div className="space-y-3 px-1">
-            <div className="flex justify-between text-[8px] font-mono text-muted-foreground/40 uppercase">
-              <span>Archive Capacity</span>
-              <span>{capacity}%</span>
-            </div>
-            <div className="h-0.5 bg-zinc-900 w-full overflow-hidden">
-              <div 
-                className="h-full bg-primary/20 transition-all duration-500" 
-                style={{ width: `${capacity}%` }}
-              />
-            </div>
-          </div>
-        </div>
+
       </ScrollArea>
 
-      <div className="p-4 border-t border-border/20 bg-black/40">
-        <div className="flex items-center justify-between text-[9px] font-mono text-muted-foreground/30 uppercase">
-          <div className="flex items-center gap-2">
-            <div className={cn(
-              "w-1.5 h-1.5 rounded-full transition-colors",
-              mounted ? "bg-green-500/40 shadow-[0_0_4px_#22c55e]" : "bg-red-500/20"
-            )} />
-            <span>{mounted ? 'Link established' : 'Awaiting link'}</span>
-          </div>
-          <span>Uptime: {formatUptime(uptime)}</span>
-        </div>
-      </div>
+
     </div>
   );
 }

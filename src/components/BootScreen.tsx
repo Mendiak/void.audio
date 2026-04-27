@@ -4,11 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const BOOT_LOGS = [
-  'INITIALIZING SIGNAL_ENGINE...',
-  'LOADING CORE_V0.1.0-ALPHA...',
-  'FFT_STREAM: ACTIVE',
-  'WAVEFORM_ANALYZER: CONNECTED',
-  'SYSTEM_INTEGRITY: STABLE',
+  'INITIALIZING AUDIO_CORE...',
+  'CALIBRATING INTERFACE...',
+  'ESTABLISHING CONNECTION...',
   'VOID.AUDIO READY.',
 ];
 
@@ -65,9 +63,7 @@ export function BootScreen() {
             )}
           </div>
 
-          <div className="absolute bottom-12 left-12 text-[10px] text-primary/30 uppercase tracking-[0.3em]">
-            Memory Check: 640KB OK // System: VoidOS
-          </div>
+
           <div className="scanline" />
         </motion.div>
       )}

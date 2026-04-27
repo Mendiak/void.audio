@@ -16,7 +16,6 @@ export class AudioEngine {
   private startTime: number = 0;
   private pauseTime: number = 0;
   private isPlaying: boolean = false;
-  private oscillator: OscillatorNode | null = null;
 
   constructor() {
     // Context is created on first interaction to comply with browser policies
@@ -33,20 +32,6 @@ export class AudioEngine {
     }
   }
 
-  async loadTrack(url: string) {
-    try {
-      this.initContext();
-      const response = await fetch(url, { mode: 'cors' });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      const arrayBuffer = await response.arrayBuffer();
-      this.buffer = await this.context!.decodeAudioData(arrayBuffer);
-      this.stop();
-      this.pauseTime = 0;
-    } catch (error) {
-      console.error('Failed to load track:', error);
-      throw error;
-    }
-  }
 
   async loadLocalFile(file: File) {
     this.initContext();
@@ -56,26 +41,6 @@ export class AudioEngine {
     this.pauseTime = 0;
   }
 
-  playTone() {
-    this.initContext();
-    this.stop();
-    
-    this.oscillator = this.context!.createOscillator();
-    this.oscillator.type = 'sawtooth';
-    this.oscillator.frequency.setValueAtTime(440, this.context!.currentTime);
-    
-    // Frequency sweep for visual effect
-    this.oscillator.frequency.exponentialRampToValueAtTime(880, this.context!.currentTime + 2);
-    this.oscillator.frequency.exponentialRampToValueAtTime(220, this.context!.currentTime + 4);
-    
-    this.oscillator.connect(this.gainNode!);
-    this.oscillator.start();
-    this.isPlaying = true;
-    
-    this.oscillator.onended = () => {
-      this.isPlaying = false;
-    };
-  }
 
   play() {
     if (!this.buffer || !this.context || this.isPlaying) return;
@@ -107,10 +72,6 @@ export class AudioEngine {
     if (this.source) {
       this.source.stop();
       this.source = null;
-    }
-    if (this.oscillator) {
-      this.oscillator.stop();
-      this.oscillator = null;
     }
     this.isPlaying = false;
     this.pauseTime = 0;

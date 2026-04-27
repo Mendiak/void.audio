@@ -24,7 +24,7 @@ const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export function UIProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('cyan');
-  const [activeView, setActiveView] = useState<View>('visuals');
+  const [activeView, setActiveView] = useState<View>('library');
 
   useEffect(() => {
     // Apply theme to document element

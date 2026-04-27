@@ -12,7 +12,7 @@ import { Terminal, Activity, Zap, Package, Music, Settings as SettingsIcon, Info
 import { cn } from '@/lib/utils';
 
 export default function Home() {
-  const { loadTrack, loadLocalFile, isPlaying, trackInfo, playTone, library, addToLibrary, metrics } = useAudio();
+  const { loadLocalFile, isPlaying, trackInfo, library, addToLibrary, metrics } = useAudio();
   const { activeView, theme, setTheme } = useUI();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -27,13 +27,6 @@ export default function Home() {
     });
   }, []);
 
-  const handleStartSample = () => {
-    loadTrack(
-      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-      'SIGNAL_ALPHA_01',
-      'VOID_SYSTEMS'
-    );
-  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -63,7 +56,7 @@ export default function Home() {
                   </div>
                   <h2 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">Initialize Signal</h2>
                   <p className="text-xs text-muted-foreground max-w-xs font-mono">
-                    System awaiting audio input. Load local signal or connect to external stream.
+                    System awaiting audio input. Load local signal to begin.
                   </p>
                   <div className="flex flex-wrap justify-center gap-4">
                     <button
@@ -71,18 +64,6 @@ export default function Home() {
                       className="px-6 py-2 border border-primary bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95"
                     >
                       Load Signal
-                    </button>
-                    <button
-                      onClick={handleStartSample}
-                      className="px-6 py-2 border border-white/20 text-white/50 text-xs font-mono uppercase tracking-widest hover:bg-white/5 transition-all active:scale-95"
-                    >
-                      Stream External
-                    </button>
-                    <button
-                      onClick={playTone}
-                      className="px-6 py-2 border border-white/10 text-white/30 text-xs font-mono uppercase tracking-widest hover:bg-white/5 transition-all active:scale-95"
-                    >
-                      Diagnostic Tone
                     </button>
                   </div>
                 </motion.div>
@@ -99,11 +80,8 @@ export default function Home() {
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
                   <Package className="text-primary" />
-                  Signal Archive
+                  Library
                 </h2>
-                <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">
-                  Index: {library.length.toString().padStart(4, '0')} // Archive Active
-                </div>
               </div>
               
               <button
@@ -111,19 +89,37 @@ export default function Home() {
                 className="group relative px-8 py-3 border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all"
               >
                 <div className="flex items-center gap-3">
-                  <Zap size={14} className="text-primary animate-pulse" />
-                  <span className="text-xs uppercase tracking-widest text-primary">Inject Bulk Signals</span>
+                  <Zap size={14} className="text-primary" />
+                  <span className="text-xs uppercase tracking-widest text-primary">Add Music</span>
                 </div>
-                <div className="absolute top-0 left-0 w-1 h-1 border-t border-l border-primary/40" />
-                <div className="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-primary/40" />
               </button>
             </div>
 
             <div className="flex-1 overflow-auto border border-border/10 bg-black/20">
               {library.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-muted-foreground/20 space-y-4">
-                  <Package size={48} strokeWidth={1} />
-                  <p className="text-[10px] uppercase tracking-[0.3em]">Archive Empty // Awaiting Input</p>
+                <div className="h-full flex flex-col items-center justify-center space-y-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col items-center gap-6 text-center"
+                  >
+                    <div className="w-16 h-16 border border-primary/20 flex items-center justify-center bg-primary/5">
+                      <Zap size={32} className="text-primary animate-pulse" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">Initialize Signal</h3>
+                      <p className="text-xs text-muted-foreground max-w-xs font-mono">
+                        System archive empty. Inject local signals to begin audio processing.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="px-8 py-3 border border-primary bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95 flex items-center gap-3"
+                    >
+                      <Package size={14} />
+                      Load Local Signals
+                    </button>
+                  </motion.div>
                 </div>
               ) : (
                 <table className="w-full text-left border-collapse">
@@ -195,11 +191,8 @@ export default function Home() {
             <div className="space-y-2 border-b border-border/20 pb-6">
               <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
                 <Music className="text-primary" />
-                Signal Chains
+                Playlists
               </h2>
-              <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">
-                Active Streams: 03 // Local Chains
-              </div>
             </div>
             <div className="space-y-4">
               {['Ambient Decay', 'Neural Beats', 'Static Void'].map((name, i) => (
@@ -215,7 +208,7 @@ export default function Home() {
                         <div key={j} className="w-0.5 h-3 bg-primary/10 group-hover:bg-primary/30 transition-colors" />
                       ))}
                     </div>
-                    <span className="text-[10px] text-muted-foreground/20 uppercase tracking-widest">Active</span>
+                    <span className="text-[10px] text-muted-foreground/20 uppercase tracking-widest">Listen</span>
                   </div>
                 </div>
               ))}
@@ -228,18 +221,15 @@ export default function Home() {
             <div className="space-y-2 border-b border-border/20 pb-6">
               <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
                 <SettingsIcon className="text-primary" />
-                System Configuration
+                Settings
               </h2>
-              <div className="text-[10px] text-muted-foreground/40 uppercase tracking-[0.2em]">
-                Kernel: v0.4.2-ALPHA // User: AUTHORIZED
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <section className="space-y-6">
                 <div className="flex items-center gap-2 text-[10px] text-primary uppercase tracking-[0.3em]">
                   <Zap size={12} />
-                  Visual Spectrum
+                  Theme Selection
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   {THEMES.map((t: { id: any; color: string; name: string }) => (
@@ -269,22 +259,21 @@ export default function Home() {
               <section className="space-y-6">
                 <div className="flex items-center gap-2 text-[10px] text-primary uppercase tracking-[0.3em]">
                   <Info size={12} />
-                  Diagnostics
+                  About
                 </div>
-                <div className="bg-black/40 border border-white/5 p-6 space-y-4">
-                  {[
-                    { label: 'Audio Engine', value: 'OK - WebAudio v2' },
-                    { label: 'FFT Resolution', value: '2048 SAMPLES' },
-                    { label: 'Visual Pipeline', value: 'CANVAS_2D_ASCII' },
-                    { label: 'Interface Latency', value: '< 2ms' },
-                    { label: 'Signal Path', value: 'STEREO_DISCRETE' }
-                  ].map((item, i) => (
-                    <div key={i} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0">
-                      <span className="text-[9px] uppercase tracking-widest text-muted-foreground/40">{item.label}</span>
-                      <span className="text-[10px] text-white/60">{item.value}</span>
-                    </div>
-                  ))}
-                </div>
+                  <div className="bg-black/40 border border-white/5 p-6 space-y-4">
+                    {[
+                      { label: 'Version', value: '1.0.0' },
+                      { label: 'Renderer', value: 'High Fidelity' },
+                      { label: 'Engine', value: 'Void Core' },
+                      { label: 'Status', value: 'Optimal' }
+                    ].map((item, i) => (
+                      <div key={i} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0">
+                        <span className="text-[9px] uppercase tracking-widest text-muted-foreground/40">{item.label}</span>
+                        <span className="text-[10px] text-white/60">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
               </section>
             </div>
           </div>
@@ -311,24 +300,8 @@ export default function Home() {
         <Sidebar />
         
         <div className="flex-1 flex flex-col relative overflow-hidden bg-zinc-950">
-          {/* Header Bar */}
-          <div className="h-12 border-b border-border/50 px-6 flex items-center justify-between bg-black/20">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-[10px] font-mono text-primary/70 uppercase tracking-widest">
-                <Terminal size={12} />
-                <span>Console active</span>
-              </div>
-              <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground/50 uppercase tracking-widest">
-                <Activity size={12} />
-                <span>Rate: {metrics.sampleRate ? `${(metrics.sampleRate / 1000).toFixed(1)}kHz` : '---'}</span>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-[10px] font-mono text-muted-foreground/30">
-              <span>LATENCY: {metrics.latency > 0 ? (metrics.latency * 1000).toFixed(2) : '0.04'}ms</span>
-              <span>CPU_CORES: {mounted ? hwInfo.cores : '--'}</span>
-              <span className="hidden md:inline">SYSTEM: {mounted ? hwInfo.platform : '----'}</span>
-            </div>
-          </div>
+          {/* Minimal Spacer */}
+          <div className="h-4" />
 
           {/* Dynamic Content Area */}
           <div className="flex-1 overflow-hidden relative">

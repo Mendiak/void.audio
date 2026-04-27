@@ -38,9 +38,7 @@ interface AudioContextType {
   trackInfo: { title: string; artist: string; cover?: string };
   play: () => void;
   pause: () => void;
-  playTone: () => void;
   setVolume: (v: number) => void;
-  loadTrack: (url: string, title: string, artist: string, cover?: string) => Promise<void>;
   loadLocalFile: (file: File) => Promise<void>;
   library: Array<{ id: string; file: File; title: string; artist: string; duration?: number; cover?: string }>;
   addToLibrary: (files: FileList | File[]) => void;
@@ -85,10 +83,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
 
   const play = () => engineRef.current?.play();
   const pause = () => engineRef.current?.pause();
-  const playTone = () => {
-    engineRef.current?.playTone();
-    setTrackInfo({ title: 'SYSTEM_DIAGNOSTIC_TONE', artist: 'VOID_OS' });
-  };
   const setVolume = (v: number) => {
     setVolumeState(v);
     engineRef.current?.setVolume(v);
@@ -102,11 +96,6 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   }, [trackInfo]);
 
-  const loadTrack = async (url: string, title: string, artist: string, cover?: string) => {
-    await engineRef.current?.loadTrack(url);
-    setTrackInfo({ title, artist, cover });
-    engineRef.current?.play();
-  };
 
   const loadLocalFile = async (file: File) => {
     const meta = await extractMetadata(file);
@@ -138,9 +127,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       library,
       play,
       pause,
-      playTone,
       setVolume,
-      loadTrack,
       loadLocalFile,
       addToLibrary,
       metrics,

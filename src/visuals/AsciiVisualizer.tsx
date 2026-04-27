@@ -96,12 +96,7 @@ export function AsciiVisualizer() {
         ref={canvasRef} 
         className="w-full h-full opacity-80"
       />
-      <div className="absolute top-4 left-4 font-mono text-[10px] text-primary/50 uppercase tracking-widest pointer-events-none">
-        Signal Analyzer / FFT Stream: Active
-      </div>
-      <div className="absolute bottom-4 right-4 font-mono text-[10px] text-primary/30 pointer-events-none">
-        VOID.AUDIO // V.0.1.0-ALPHA
-      </div>
+
       <div className="scanline" />
     </div>
   );
