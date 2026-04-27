@@ -39,6 +39,7 @@ interface AudioContextType {
   play: () => void;
   pause: () => void;
   setVolume: (v: number) => void;
+  seek: (time: number) => void;
   loadLocalFile: (file: File) => Promise<void>;
   library: Array<{ id: string; file: File; title: string; artist: string; duration?: number; cover?: string }>;
   addToLibrary: (files: FileList | File[]) => void;
@@ -87,6 +88,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     setVolumeState(v);
     engineRef.current?.setVolume(v);
   };
+  const seek = (time: number) => engineRef.current?.seek(time);
 
   useEffect(() => {
     if (trackInfo.title !== 'NO SIGNAL') {
@@ -128,6 +130,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       play,
       pause,
       setVolume,
+      seek,
       loadLocalFile,
       addToLibrary,
       metrics,

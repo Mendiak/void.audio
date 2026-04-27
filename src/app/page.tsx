@@ -54,16 +54,16 @@ export default function Home() {
                   <div className="w-16 h-16 border border-primary/20 flex items-center justify-center bg-primary/5">
                     <Zap size={32} className="text-primary animate-pulse" />
                   </div>
-                  <h2 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">Initialize Signal</h2>
+                  <h2 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">Awaiting Music</h2>
                   <p className="text-xs text-muted-foreground max-w-xs font-mono">
-                    System awaiting audio input. Load local signal to begin.
+                    Load a track to begin the visual experience.
                   </p>
                   <div className="flex flex-wrap justify-center gap-4">
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       className="px-6 py-2 border border-primary bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95"
                     >
-                      Load Signal
+                      Open Library
                     </button>
                   </div>
                 </motion.div>
@@ -107,9 +107,9 @@ export default function Home() {
                       <Zap size={32} className="text-primary animate-pulse" />
                     </div>
                     <div className="space-y-2">
-                      <h3 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">Initialize Signal</h3>
+                      <h3 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">No Music Found</h3>
                       <p className="text-xs text-muted-foreground max-w-xs font-mono">
-                        System archive empty. Inject local signals to begin audio processing.
+                        Your library is empty. Load your local tracks to start listening.
                       </p>
                     </div>
                     <button

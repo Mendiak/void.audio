@@ -10,6 +10,8 @@ export interface AudioState {
 export class AudioEngine {
   private context: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
+  private analyserL: AnalyserNode | null = null;
+  private analyserR: AnalyserNode | null = null;
   private source: AudioBufferSourceNode | null = null;
   private gainNode: GainNode | null = null;
   private buffer: AudioBuffer | null = null;
@@ -26,10 +28,50 @@ export class AudioEngine {
       this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
       this.analyser = this.context.createAnalyser();
       this.analyser.fftSize = 256;
+
+      // Stereo separation for VU meter
+      this.analyserL = this.context.createAnalyser();
+      this.analyserR = this.context.createAnalyser();
+      this.analyserL.fftSize = 32;
+      this.analyserR.fftSize = 32;
+
+      const splitter = this.context.createChannelSplitter(2);
+      
       this.gainNode = this.context.createGain();
+      
+      // Connect source chain
       this.gainNode.connect(this.analyser);
+      this.gainNode.connect(splitter);
+      
+      splitter.connect(this.analyserL, 0);
+      splitter.connect(this.analyserR, 1);
+      
       this.analyser.connect(this.context.destination);
     }
+  }
+
+  getStereoLevels() {
+    if (!this.analyserL || !this.analyserR) return { l: 0, r: 0 };
+    
+    const dataL = new Uint8Array(this.analyserL.frequencyBinCount);
+    const dataR = new Uint8Array(this.analyserR.frequencyBinCount);
+    
+    this.analyserL.getByteTimeDomainData(dataL);
+    this.analyserR.getByteTimeDomainData(dataR);
+    
+    const getPeak = (data: Uint8Array) => {
+      let max = 0;
+      for (let i = 0; i < data.length; i++) {
+        const val = Math.abs(data[i] - 128);
+        if (val > max) max = val;
+      }
+      return max / 128;
+    };
+    
+    return {
+      l: getPeak(dataL),
+      r: getPeak(dataR)
+    };
   }
 
 
@@ -68,9 +110,30 @@ export class AudioEngine {
     this.isPlaying = false;
   }
 
+  seek(time: number) {
+    if (!this.buffer || !this.context) return;
+    
+    const wasPlaying = this.isPlaying;
+    if (this.source) {
+      try {
+        this.source.stop();
+      } catch (e) {}
+      this.source = null;
+    }
+    
+    this.pauseTime = Math.max(0, Math.min(time, this.buffer.duration));
+    this.isPlaying = false;
+    
+    if (wasPlaying) {
+      this.play();
+    }
+  }
+
   stop() {
     if (this.source) {
-      this.source.stop();
+      try {
+        this.source.stop();
+      } catch (e) {}
       this.source = null;
     }
     this.isPlaying = false;
@@ -78,7 +141,7 @@ export class AudioEngine {
   }
 
   setVolume(value: number) {
-    if (this.gainNode) {
+    if (this.gainNode && isFinite(value)) {
       this.gainNode.gain.value = value;
     }
   }
