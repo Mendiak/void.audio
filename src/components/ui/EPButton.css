@@ -52,6 +52,11 @@
   transition-property: transform, background-color, box-shadow;
   transition-duration: .2s;
   transition-timing-function: cubic-bezier(.25, .5, .5, 1);
+  
+  /* Engraved / Letterpress effect */
+  text-shadow: 
+    -1px -1px 1px rgba(0,0,0,0.3), 
+    1px 1px 1px rgba(255,255,255,0.2);
 }
 
 .ep-button:active .ep-button-inside {
@@ -62,6 +67,13 @@
     inset 0.0625rem 0.0625rem 0.0625rem transparent,
     inset -0.0625rem -0.0625rem 0.0625rem transparent,
     0.125rem 0.125rem 0.25rem transparent;
+}
+
+.ep-button:active .ep-button-inside {
+  /* Pressed state for the engraved effect */
+  text-shadow: 
+    1px 1px 1px rgba(0,0,0,0.2), 
+    -1px -1px 1px rgba(255,255,255,0.1);
 }
 
 /* Variants */

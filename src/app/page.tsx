@@ -12,7 +12,7 @@ import { Terminal, Activity, Zap, Package, Music, Settings as SettingsIcon, Info
 import { cn } from '@/lib/utils';
 
 export default function Home() {
-  const { loadLocalFile, isPlaying, trackInfo, library, addToLibrary, metrics } = useAudio();
+  const { loadLocalFile, isPlaying, trackInfo, library, addToLibrary, metrics, playTrack } = useAudio();
   const { activeView, theme, setTheme } = useUI();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -125,13 +125,13 @@ export default function Home() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-border/10 text-[9px] uppercase tracking-widest text-muted-foreground/40">
-                      <th className="p-4 font-normal">ID</th>
-                      <th className="p-4 font-normal">Signal Name</th>
-                      <th className="p-4 font-normal">Type</th>
-                      <th className="p-4 font-normal">Source</th>
-                      <th className="p-4 font-normal text-right">Bitrate</th>
-                      <th className="p-4 font-normal text-right">Data Size</th>
-                      <th className="p-4 font-normal w-20"></th>
+                      <th className="p-3 font-normal">Artist</th>
+                      <th className="p-3 font-normal">Track</th>
+                      <th className="p-3 font-normal">Album</th>
+                      <th className="p-3 font-normal">Type</th>
+                      <th className="p-3 font-normal text-right">Bitrate</th>
+                      <th className="p-3 font-normal text-right">Data Size</th>
+                      <th className="p-3 font-normal w-20"></th>
                     </tr>
                   </thead>
                   <tbody className="text-[11px] uppercase tracking-tight">
@@ -144,33 +144,33 @@ export default function Home() {
                             "border-b border-border/5 group cursor-pointer transition-colors",
                             isActive ? "bg-primary/10" : "hover:bg-primary/5"
                           )}
-                          onClick={() => loadLocalFile(track.file)}
+                          onClick={() => playTrack(track.id)}
                         >
-                          <td className="p-4 text-primary/30 group-hover:text-primary transition-colors font-mono flex items-center gap-3">
+                          <td className="p-3 text-muted-foreground/60 font-mono flex items-center gap-3">
                             <div className={cn(
-                              "w-1.5 h-1.5 rounded-full transition-all duration-500",
+                              "w-1.5 h-1.5 rounded-full transition-all duration-500 shrink-0",
                               isActive 
                                 ? "bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" 
                                 : "bg-zinc-800 opacity-20 group-hover:opacity-100"
                             )} />
-                            {track.id.slice(0, 4)}
+                            <span className="truncate">{track.artist}</span>
                           </td>
-                          <td className="p-4 font-bold truncate max-w-[200px]">
+                          <td className="p-3 font-bold truncate max-w-[200px]">
                             {track.title}
                           </td>
-                          <td className="p-4 text-muted-foreground/50">
+                          <td className="p-3 text-muted-foreground/40 italic truncate max-w-[150px]">
+                            {track.album || 'SINGLE'}
+                          </td>
+                          <td className="p-3 text-muted-foreground/50">
                             {track.file.name.split('.').pop()?.toUpperCase() || 'RAW'}
                           </td>
-                          <td className="p-4 text-muted-foreground/40">
-                            {track.artist}
-                          </td>
-                          <td className="p-4 text-right text-muted-foreground/30 font-mono">
+                          <td className="p-3 text-right text-muted-foreground/30 font-mono">
                             320 KBPS
                           </td>
-                          <td className="p-4 text-right text-muted-foreground/30 font-mono">
+                          <td className="p-3 text-right text-muted-foreground/30 font-mono">
                             {(track.file.size / (1024 * 1024)).toFixed(2)} MB
                           </td>
-                          <td className="p-4 text-right">
+                          <td className="p-3 text-right">
                             <Activity size={12} className={cn(
                               "inline-block transition-all",
                               isActive ? "text-primary animate-pulse" : "text-muted-foreground/10 opacity-0 group-hover:opacity-100"

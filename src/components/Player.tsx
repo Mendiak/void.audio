@@ -84,6 +84,8 @@ export function Player() {
     pause, 
     setVolume,
     seek,
+    nextTrack,
+    previousTrack,
     engine,
   } = useAudio();
 
@@ -96,56 +98,58 @@ export function Player() {
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
       
       {/* Signal Identity Slot */}
-      <div className="w-80 shrink-0 flex items-center gap-6">
+      <div className="w-80 shrink-0 flex items-center gap-4">
         <div 
           className="relative group cursor-pointer" 
           onClick={() => setIsExpanded(true)}
         >
-          <div className="w-16 h-16 bg-black rounded-sm overflow-hidden shadow-2xl border border-white/5">
+          <div className="w-16 h-16 bg-black rounded-sm overflow-hidden shadow-2xl border border-white/10 flex items-center justify-center">
             {trackInfo.cover ? (
-              <img src={trackInfo.cover} alt="" className="w-full h-full object-cover opacity-80" />
+              <img src={trackInfo.cover} alt="" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-zinc-900">
-                <div className="w-8 h-8 border border-white/10 rounded-full animate-pulse" />
+                <Activity className="w-8 h-8 text-white/10 animate-pulse" />
               </div>
             )}
           </div>
           {/* Bezel */}
-          <div className="absolute -inset-1 border border-white/10 rounded-sm pointer-events-none" />
+          <div className="absolute -inset-1 border border-white/5 rounded-sm pointer-events-none" />
         </div>
 
-        <div className="flex-1 min-w-0 space-y-1">
-          <div className="text-[10px] font-mono text-white/30 uppercase tracking-[0.2em] truncate">
-            {trackInfo.artist}
+        <div className="flex-1 min-w-0 bg-black/20 p-3 rounded border border-white/5 relative overflow-hidden group/info">
+          <div className="absolute top-0 left-0 w-1 h-full bg-orange-500/50 group-hover/info:bg-orange-500 transition-colors" />
+          <div className="text-[9px] font-mono text-white/30 uppercase tracking-[0.2em] truncate mb-1">
+            {trackInfo.artist || 'NO SIGNAL'}
           </div>
-          <div className="text-sm font-bold text-white/90 uppercase tracking-tight truncate leading-none">
-            {trackInfo.title}
+          <div className="text-xs font-bold text-white/90 uppercase tracking-wider truncate leading-none">
+            {trackInfo.title || 'IDLE_PROCESS'}
           </div>
         </div>
       </div>
 
       {/* Main Controls - Skeuomorphic Cluster */}
-      <div className="flex-1 flex flex-col gap-6 max-w-2xl">
-        <div className="flex items-center justify-center gap-8">
-          <EPButton variant="white">
+      <div className="flex-1 flex flex-col gap-5 max-w-2xl">
+        <div className="flex items-center justify-center gap-6">
+          <EPButton variant="white" size="sm" onClick={previousTrack}>
             PREV
           </EPButton>
           
           <EPButton 
             variant="orange" 
+            size="md"
             onClick={isPlaying ? pause : play}
           >
             {isPlaying ? 'PAUSE' : 'PLAY'}
           </EPButton>
 
-          <EPButton variant="white">
+          <EPButton variant="white" size="sm" onClick={nextTrack}>
             NEXT
           </EPButton>
         </div>
 
         {/* Tactile Progress Bar */}
         <div className="flex items-center gap-4 group">
-          <span className="text-[9px] font-mono text-white/20 w-10 text-right">
+          <span className="text-[9px] font-mono text-white/40 w-10 text-right tabular-nums">
             {formatTime(currentTime)}
           </span>
           <div className="flex-1 relative h-6 flex items-center group/slider">
@@ -158,7 +162,7 @@ export function Player() {
               className="flex-1"
             />
           </div>
-          <span className="text-[9px] font-mono text-white/20 w-10">
+          <span className="text-[9px] font-mono text-white/40 w-10 tabular-nums">
             {formatTime(duration)}
           </span>
         </div>
