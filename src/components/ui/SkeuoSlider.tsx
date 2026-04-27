@@ -9,7 +9,7 @@ interface SkeuoSliderProps {
   max?: number;
   step?: number;
   onValueChange: (value: number[]) => void;
-  variant?: 'blue' | 'green' | 'red';
+  variant?: 'blue' | 'green' | 'red' | 'neutral';
   className?: string;
 }
 
@@ -19,7 +19,7 @@ export function SkeuoSlider({
   max = 100,
   step = 1,
   onValueChange,
-  variant = 'blue',
+  variant = 'neutral',
   className = '',
 }: SkeuoSliderProps) {
   const currentValue = value[0];

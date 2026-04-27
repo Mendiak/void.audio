@@ -91,12 +91,12 @@ export function Player() {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="h-32 border-t border-white/5 bg-[#1a1a1a] flex items-center px-12 gap-12 relative overflow-hidden shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+    <div className="h-32 border-t border-white/5 bg-[#1a1a1a] flex items-center px-8 gap-8 relative overflow-hidden shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
       {/* Retro Metal Texture Overlay */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
       
       {/* Signal Identity Slot */}
-      <div className="w-72 shrink-0 flex items-center gap-6">
+      <div className="w-80 shrink-0 flex items-center gap-6">
         <div 
           className="relative group cursor-pointer" 
           onClick={() => setIsExpanded(true)}
@@ -126,7 +126,7 @@ export function Player() {
 
       {/* Main Controls - Skeuomorphic Cluster */}
       <div className="flex-1 flex flex-col gap-6 max-w-2xl">
-        <div className="flex items-center justify-center gap-10">
+        <div className="flex items-center justify-center gap-8">
           <EPButton variant="white">
             PREV
           </EPButton>
@@ -154,7 +154,7 @@ export function Player() {
               max={duration || 100} 
               step={0.1}
               onValueChange={(v) => seek(v[0])}
-              variant="blue"
+              variant="neutral"
               className="flex-1"
             />
           </div>
@@ -165,7 +165,7 @@ export function Player() {
       </div>
 
       {/* VU Meter & Volume Cluster */}
-      <div className="w-80 flex items-center justify-end gap-10">
+      <div className="w-80 flex items-center justify-end gap-8">
         <VUMeter engine={engine} isPlaying={isPlaying} />
         
         <div className="flex flex-col gap-3 w-32">
