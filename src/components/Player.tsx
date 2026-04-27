@@ -3,6 +3,7 @@
 import React from 'react';
 import { useAudio } from '@/store/AudioContext';
 import { SkeuoSlider } from '@/components/ui/SkeuoSlider';
+import { EPButton } from '@/components/ui/EPButton';
 import { Play, Pause, SkipBack, SkipForward, Volume2, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -70,61 +71,7 @@ const VUMeter = ({ engine, isPlaying }: { engine: any, isPlaying: boolean }) => 
   );
 };
 
-const SkeuoButton = ({ 
-  children, 
-  onClick, 
-  isActive = false, 
-  variant = 'default',
-  size = 'md' 
-}: { 
-  children: React.ReactNode, 
-  onClick?: () => void, 
-  isActive?: boolean,
-  variant?: 'default' | 'primary' | 'danger',
-  size?: 'sm' | 'md' | 'lg'
-}) => {
-  const sizeClasses = {
-    sm: 'w-8 h-8',
-    md: 'w-12 h-12',
-    lg: 'w-16 h-16'
-  };
 
-  const variants = {
-    default: isActive ? 'bg-zinc-300' : 'bg-zinc-200',
-    primary: 'bg-[#ff5f00]', // Braun Orange
-    danger: 'bg-red-600'
-  };
-
-  return (
-    <button 
-      onClick={onClick}
-      className={cn(
-        "rounded-full transition-all active:scale-95 flex items-center justify-center relative group overflow-hidden",
-        sizeClasses[size],
-        variants[variant],
-        // Dieter Rams inspired skeuomorphism
-        "shadow-[0_4px_8px_rgba(0,0,0,0.3),inset_0_1px_1px_rgba(255,255,255,0.8),0_-1px_1px_rgba(0,0,0,0.1)]",
-        "hover:shadow-[0_6px_12px_rgba(0,0,0,0.4),inset_0_1px_1px_rgba(255,255,255,1),0_-1px_1px_rgba(0,0,0,0.1)]",
-        "active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),0_1px_2px_rgba(0,0,0,0.2)]",
-        isActive && "shadow-[inset_0_2px_4px_rgba(0,0,0,0.4),0_0_15px_rgba(255,95,0,0.3)]"
-      )}
-    >
-      {/* Surface Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/20 opacity-50" />
-      
-      {/* Icon/Content */}
-      <div className={cn(
-        "relative z-10",
-        variant === 'primary' ? "text-white" : "text-zinc-800"
-      )}>
-        {children}
-      </div>
-
-      {/* Button Bevel */}
-      <div className="absolute inset-[2px] rounded-full border border-black/5 pointer-events-none" />
-    </button>
-  );
-};
 
 export function Player() {
   const { 
@@ -180,22 +127,20 @@ export function Player() {
       {/* Main Controls - Skeuomorphic Cluster */}
       <div className="flex-1 flex flex-col gap-6 max-w-2xl">
         <div className="flex items-center justify-center gap-10">
-          <SkeuoButton size="sm">
-            <SkipBack size={14} fill="currentColor" />
-          </SkeuoButton>
+          <EPButton variant="white">
+            PREV
+          </EPButton>
           
-          <SkeuoButton 
-            variant="primary" 
-            size="lg"
+          <EPButton 
+            variant="orange" 
             onClick={isPlaying ? pause : play}
-            isActive={isPlaying}
           >
-            {isPlaying ? <Pause size={24} fill="currentColor" /> : <Play size={24} fill="currentColor" className="ml-1" />}
-          </SkeuoButton>
+            {isPlaying ? 'PAUSE' : 'PLAY'}
+          </EPButton>
 
-          <SkeuoButton size="sm">
-            <SkipForward size={14} fill="currentColor" />
-          </SkeuoButton>
+          <EPButton variant="white">
+            NEXT
+          </EPButton>
         </div>
 
         {/* Tactile Progress Bar */}

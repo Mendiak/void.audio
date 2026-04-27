@@ -1,0 +1,102 @@
+@font-face {
+  font-display: swap;
+  font-family: 'Technotype34';
+  src: url('https://assets.codepen.io/4175254/Technotype34-Regular.otf');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.ep-button {
+  border: 0.125rem solid transparent;
+  border-radius: 0.125rem;
+  background-color: #010101;
+  box-shadow: 0.0625rem 0.0625rem 0.0625rem rgb(255 255 255 / .6);
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  font-family: 'Technotype34', sans-serif;
+  transition: transform 0.1s;
+}
+
+.ep-button.size-sm { width: 4rem; height: 1.8rem; }
+.ep-button.size-md { width: 5.5rem; height: 2.2rem; }
+.ep-button.size-lg { width: 7rem; height: 2.5rem; }
+
+.ep-button-inside {
+  --background-color: #f05a22;
+  --background-color-active: #ee5529;
+  --light-shadow-color: #ffb147;
+  --dark-shadow-color: #d72d12;
+  --text-color: #fff;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 0.5625rem; /* em(9px) */
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  background-image: url('https://assets.codepen.io/4175254/ep-133-noise.png');
+  background-size: 80px 80px;
+  box-shadow:
+    inset 0.0625rem 0.0625rem 0.0625rem var(--light-shadow-color),
+    inset -0.0625rem -0.0625rem 0.0625rem var(--dark-shadow-color),
+    0.125rem 0.125rem 0.25rem #000;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-color);
+  transition-property: transform, background-color, box-shadow;
+  transition-duration: .2s;
+  transition-timing-function: cubic-bezier(.25, .5, .5, 1);
+}
+
+.ep-button:active .ep-button-inside {
+  transform: scale(.98);
+  background-color: var(--background-color-active);
+  box-shadow:
+    inset 0 0 0.25rem #000,
+    inset 0.0625rem 0.0625rem 0.0625rem transparent,
+    inset -0.0625rem -0.0625rem 0.0625rem transparent,
+    0.125rem 0.125rem 0.25rem transparent;
+}
+
+/* Variants */
+.ep-button-inside.variant-dark-gray {
+  --background-color: #353535;
+  --background-color-active: #313030;
+  --light-shadow-color: #a7a7a7;
+  --dark-shadow-color: #1c1c1c;
+}
+
+.ep-button-inside.variant-white {
+  --background-color: #cfcbca;
+  --background-color-active: #b9b5b3;
+  --light-shadow-color: #fafafa;
+  --dark-shadow-color: #646464;
+  --text-color: #010101;
+}
+
+.ep-button-inside.variant-light-gray {
+  --background-color: #bcbcbc;
+  --background-color-active: #b1adad;
+  --light-shadow-color: #f7f7f7;
+  --dark-shadow-color: #646464;
+}
+
+.ep-button-inside.variant-gray {
+  --background-color: #676767;
+  --background-color-active: #575454;
+  --light-shadow-color: #b8b7b5;
+  --dark-shadow-color: #383838;
+}
+
+.ep-button-inside.variant-orange {
+  --background-color: #f05a22;
+  --background-color-active: #ee5529;
+  --light-shadow-color: #ffb147;
+  --dark-shadow-color: #d72d12;
+}
