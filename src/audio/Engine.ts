@@ -20,6 +20,9 @@ export class AudioEngine {
   private pauseTime: number = 0;
   private isPlaying: boolean = false;
 
+  private hapticGain: GainNode | null = null;
+  private isMuted: boolean = false;
+
   private FREQUENCIES = [60, 150, 400, 1000, 2400, 6000, 15000];
 
   constructor() {
@@ -41,6 +44,8 @@ export class AudioEngine {
       const splitter = this.context.createChannelSplitter(2);
       
       this.gainNode = this.context.createGain();
+      this.hapticGain = this.context.createGain();
+      this.hapticGain.gain.value = 0.15; // Subtle default volume
 
       // EQ Setup
       this.eqNodes = this.FREQUENCIES.map((freq, i) => {
@@ -71,6 +76,110 @@ export class AudioEngine {
       splitter.connect(this.analyserR, 1);
       
       this.analyser.connect(this.context.destination);
+      this.hapticGain.connect(this.context.destination);
+    }
+  }
+
+  /**
+   * Synthesizes a metallic click sound for buttons
+   */
+  playClick(type: 'plastic' | 'metal' | 'light' = 'metal') {
+    if (!this.context) this.initContext();
+    const ctx = this.context!;
+    const hGain = this.hapticGain!;
+
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    
+    // Different characteristics for different materials
+    if (type === 'metal') {
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.05);
+    } else if (type === 'plastic') {
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(10, ctx.currentTime + 0.03);
+    } else {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1200, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.01);
+    }
+
+    env.gain.setValueAtTime(0, ctx.currentTime);
+    env.gain.linearRampToValueAtTime(1, ctx.currentTime + 0.002);
+    env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+
+    osc.connect(env);
+    env.connect(hGain);
+
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.06);
+
+    // Add a tiny bit of noise for texture
+    const bufferSize = ctx.sampleRate * 0.02;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+
+    const noise = ctx.createBufferSource();
+    const noiseFilter = ctx.createBiquadFilter();
+    const noiseEnv = ctx.createGain();
+
+    noise.buffer = buffer;
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 2000;
+
+    noiseEnv.gain.setValueAtTime(0.2, ctx.currentTime);
+    noiseEnv.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseEnv);
+    noiseEnv.connect(hGain);
+    noise.start(ctx.currentTime);
+  }
+
+  /**
+   * Synthesizes a heavy relay 'clack' sound for power/main controls
+   */
+  playRelay(on: boolean = true) {
+    if (!this.context) this.initContext();
+    const ctx = this.context!;
+    const hGain = this.hapticGain!;
+
+    // A relay clack is often two distinct pulses
+    const playPulse = (delay: number, freq: number, vol: number, decay: number) => {
+      const osc = ctx.createOscillator();
+      const env = ctx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+      osc.frequency.exponentialRampToValueAtTime(freq / 2, ctx.currentTime + delay + decay);
+
+      env.gain.setValueAtTime(0, ctx.currentTime + delay);
+      env.gain.linearRampToValueAtTime(vol, ctx.currentTime + delay + 0.002);
+      env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + decay);
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 1500;
+
+      osc.connect(filter);
+      filter.connect(env);
+      env.connect(hGain);
+
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + decay + 0.01);
+    };
+
+    if (on) {
+      playPulse(0, 150, 1, 0.08);
+      playPulse(0.015, 100, 0.8, 0.1);
+    } else {
+      playPulse(0, 120, 1, 0.1);
+      playPulse(0.01, 80, 0.5, 0.05);
     }
   }
 

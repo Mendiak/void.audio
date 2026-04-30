@@ -2,6 +2,7 @@
 
 import React from 'react';
 import './SkeuoSlider.css';
+import { useAudio } from '@/store/AudioContext';
 
 interface SkeuoSliderProps {
   value: number[];
@@ -26,6 +27,9 @@ export function SkeuoSlider({
 }: SkeuoSliderProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = React.useState(100);
+  const { engine } = useAudio();
+  const lastSoundValue = React.useRef(value[0]);
+  
   const currentValue = value[0];
   const percentage = ((currentValue - min) / (max - min)) * 100;
 
@@ -38,6 +42,12 @@ export function SkeuoSlider({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(e.target.value);
     onValueChange([newValue]);
+    
+    // Play sound only when value changes significantly (every 5% or so)
+    if (Math.abs(newValue - lastSoundValue.current) >= (max - min) * 0.05) {
+      engine?.playClick('light');
+      lastSoundValue.current = newValue;
+    }
   };
 
   return (

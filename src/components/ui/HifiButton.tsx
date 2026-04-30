@@ -3,6 +3,7 @@
 import React from 'react';
 import './HifiButton.css';
 import { cn } from '@/lib/utils';
+import { useAudio } from '@/store/AudioContext';
 
 interface HifiButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'accent';
@@ -16,8 +17,20 @@ export function HifiButton({
   active = false,
   className, 
   children,
+  onMouseDown,
   ...props 
 }: HifiButtonProps) {
+  const { engine } = useAudio();
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (variant === 'primary') {
+      engine?.playRelay(!active);
+    } else {
+      engine?.playClick(size === 'lg' ? 'metal' : 'light');
+    }
+    onMouseDown?.(e);
+  };
+
   return (
     <button 
       className={cn(
@@ -26,6 +39,7 @@ export function HifiButton({
         active && "is-active",
         className
       )} 
+      onMouseDown={handleMouseDown}
       {...props}
     >
       <div className="hifi-button-well">
