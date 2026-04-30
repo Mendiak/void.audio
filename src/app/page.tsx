@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Sidebar } from '@/components/Sidebar';
+import { LibraryView } from '@/components/LibraryView';
 import { Player } from '@/components/Player';
 import { VisualizerContainer } from '@/visuals/VisualizerContainer';
 import { BootScreen } from '@/components/BootScreen';
@@ -16,6 +17,7 @@ export default function Home() {
   const { loadLocalFile, isPlaying, trackInfo, library, addToLibrary, metrics, playTrack } = useAudio();
   const { activeView, theme, setTheme } = useUI();
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = React.useState(false);
 
   const [mounted, setMounted] = React.useState(false);
   const [hwInfo, setHwInfo] = React.useState({ cores: 0, platform: '' });
@@ -76,7 +78,26 @@ export default function Home() {
         );
       case 'library':
         return (
-          <div className="flex-1 p-8 font-mono space-y-8 h-full overflow-hidden flex flex-col">
+          <div 
+            className={cn(
+              "flex-1 p-8 font-mono space-y-8 h-full overflow-hidden flex flex-col relative transition-colors",
+              isDragging && "bg-primary/5"
+            )}
+            onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setIsDragging(false);
+              if (e.dataTransfer.files) addToLibrary(e.dataTransfer.files);
+            }}
+          >
+            {isDragging && (
+              <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none border-2 border-dashed border-primary bg-black/60">
+                <div className="text-primary font-mono text-xl uppercase tracking-widest bg-black p-6 border border-primary shadow-[0_0_20px_var(--primary)]">
+                  Release to Inject Media
+                </div>
+              </div>
+            )}
             <div className="flex items-end justify-between border-b border-border/20 pb-6 shrink-0">
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold tracking-tighter uppercase flex items-center gap-4">
@@ -91,99 +112,17 @@ export default function Home() {
               >
                 <div className="flex items-center gap-3">
                   <Zap size={14} className="text-primary" />
-                  <span className="text-xs uppercase tracking-widest text-primary">Add Music</span>
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs uppercase tracking-widest text-primary">Add Music</span>
+                    <span className="text-[8px] uppercase tracking-widest text-primary/40">Click or Drag Files</span>
+                  </div>
                 </div>
               </button>
             </div>
 
             <div className="flex-1 overflow-hidden border border-border/10 bg-black/20">
               <ScrollArea className="h-full">
-                {library.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center space-y-6 min-h-[400px]">
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex flex-col items-center gap-6 text-center"
-                    >
-                      <div className="w-16 h-16 border border-primary/20 flex items-center justify-center bg-primary/5">
-                        <Zap size={32} className="text-primary animate-pulse" />
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">No Music Found</h3>
-                        <p className="text-xs text-muted-foreground max-w-xs font-mono">
-                          Your library is empty. Load your local tracks to start listening.
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-8 py-3 border border-primary bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95 flex items-center gap-3"
-                      >
-                        <Package size={14} />
-                        Load Local Signals
-                      </button>
-                    </motion.div>
-                  </div>
-                ) : (
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-border/10 text-[9px] uppercase tracking-widest text-muted-foreground/40">
-                        <th className="p-3 font-normal">Artist</th>
-                        <th className="p-3 font-normal">Track</th>
-                        <th className="p-3 font-normal">Album</th>
-                        <th className="p-3 font-normal">Type</th>
-                        <th className="p-3 font-normal text-right">Bitrate</th>
-                        <th className="p-3 font-normal text-right">Data Size</th>
-                        <th className="p-3 font-normal w-20"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-[11px] uppercase tracking-tight">
-                      {library.map((track) => {
-                        const isActive = trackInfo.title === track.title;
-                        return (
-                          <tr 
-                            key={track.id} 
-                            className={cn(
-                              "border-b border-border/5 group cursor-pointer transition-colors",
-                              isActive ? "bg-primary/10" : "hover:bg-primary/5"
-                            )}
-                            onClick={() => playTrack(track.id)}
-                          >
-                            <td className="p-3 text-muted-foreground/60 font-mono flex items-center gap-3">
-                              <div className={cn(
-                                "w-1.5 h-1.5 rounded-full transition-all duration-500 shrink-0",
-                                isActive 
-                                  ? "bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" 
-                                  : "bg-zinc-800 opacity-20 group-hover:opacity-100"
-                              )} />
-                              <span className="truncate">{track.artist}</span>
-                            </td>
-                            <td className="p-3 font-bold truncate max-w-[200px]">
-                              {track.title}
-                            </td>
-                            <td className="p-3 text-muted-foreground/40 italic truncate max-w-[150px]">
-                              {track.album || 'SINGLE'}
-                            </td>
-                            <td className="p-3 text-muted-foreground/50">
-                              {('name' in track.file) ? track.file.name.split('.').pop()?.toUpperCase() : 'RAW'}
-                            </td>
-                            <td className="p-3 text-right text-muted-foreground/30 font-mono">
-                              320 KBPS
-                            </td>
-                            <td className="p-3 text-right text-muted-foreground/30 font-mono">
-                              {(track.file.size / (1024 * 1024)).toFixed(2)} MB
-                            </td>
-                            <td className="p-3 text-right">
-                              <Activity size={12} className={cn(
-                                "inline-block transition-all",
-                                isActive ? "text-primary animate-pulse" : "text-muted-foreground/10 opacity-0 group-hover:opacity-100"
-                              )} />
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                )}
+                <LibraryView />
               </ScrollArea>
             </div>
           </div>

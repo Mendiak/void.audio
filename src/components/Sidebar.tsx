@@ -19,8 +19,9 @@ const LedIndicator = ({ active }: { active: boolean }) => (
 );
 
 export function Sidebar() {
-  const { activeView, setActiveView, theme, setTheme } = useUI();
-  const { library, metrics } = useAudio();
+  const { activeView, setActiveView } = useUI();
+  const { library, metrics, addToLibrary } = useAudio();
+  const [isDragging, setIsDragging] = React.useState(false);
 
   const capacity = Math.min(Math.round((library.length / 50) * 100), 100);
 
@@ -31,19 +32,9 @@ export function Sidebar() {
     { icon: Settings, label: 'Settings', id: 'settings' },
   ] as const;
 
-  const themes = [
-    { id: 'cyan', color: '#a2e4f1' },
-    { id: 'pink', color: '#ffb7c5' },
-    { id: 'amber', color: '#ffd8a8' },
-    { id: 'green', color: '#c1e1c1' },
-    { id: 'purple', color: '#dcd3ff' },
-  ] as const;
-
   const [uptime, setUptime] = React.useState(0);
-  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    setMounted(true);
     const start = Date.now();
     const timer = setInterval(() => {
       setUptime(Math.floor((Date.now() - start) / 1000));
@@ -58,11 +49,45 @@ export function Sidebar() {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files) {
+      addToLibrary(e.dataTransfer.files);
+    }
+  };
+
   return (
-    <div className="w-64 h-full flex flex-col border-r-2 border-white/10 bg-[#1a1b1c] relative overflow-hidden shadow-[15px_0_50px_rgba(0,0,0,0.4)] z-40">
+    <div 
+      className={cn(
+        "w-64 h-full flex flex-col border-r-2 border-white/10 bg-[#1a1b1c] relative overflow-hidden shadow-[15px_0_50px_rgba(0,0,0,0.4)] z-40 transition-colors duration-200",
+        isDragging && "bg-[#1f2122] border-primary shadow-[inset_0_0_20px_rgba(var(--primary-rgb),0.2)]"
+      )}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       {/* Retro Metal Texture Overlay */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
       
+      {/* Dragging Feedback Indicator */}
+      {isDragging && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-black/40 border-2 border-dashed border-primary">
+          <div className="text-primary font-mono text-xs uppercase tracking-widest bg-black p-4 border border-primary shadow-[0_0_10px_var(--primary)]">
+            Load into Medium
+          </div>
+        </div>
+      )}
+
       {/* Hardware Screw Details (Unified with Player) */}
       <div className="absolute top-3 left-3 w-1.5 h-1.5 rounded-full bg-zinc-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.5)] border border-black/40 z-10" />
       <div className="absolute bottom-3 left-3 w-1.5 h-1.5 rounded-full bg-zinc-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),0_1px_2px_rgba(0,0,0,0.5)] border border-black/40 z-10" />
