@@ -59,8 +59,14 @@ export function Sidebar() {
   };
 
   return (
-    <div className="w-64 h-full flex flex-col border-r border-border bg-black/40 backdrop-blur-md relative overflow-hidden">
-      <div className="p-6 border-b border-border/20">
+    <div className="w-64 h-full flex flex-col border-r-2 border-white/10 bg-[#1a1b1c] relative overflow-hidden shadow-[15px_0_50px_rgba(0,0,0,0.4)] z-40">
+      {/* Retro Metal Texture Overlay */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/brushed-alum.png')]" />
+      
+      {/* Inner Shadow to simulate depth for the screen */}
+      <div className="absolute top-0 right-0 bottom-0 w-4 bg-gradient-to-l from-black/40 to-transparent pointer-events-none z-10" />
+
+      <div className="p-6 border-b border-black/40 relative z-20">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -69,11 +75,14 @@ export function Sidebar() {
           <div className="w-2 h-2 bg-primary shadow-[0_0_8px_var(--primary)]" />
           <h1 className="text-lg font-mono font-bold tracking-[0.1em] uppercase crt-glow">VOID.AUDIO</h1>
         </motion.div>
+        <div className="text-[7px] font-mono text-white/30 uppercase tracking-[0.2em] ml-5">
+          HIGH-FIDELITY SIGNAL PROCESSOR
+        </div>
         <div className="h-4" />
       </div>
 
       <ScrollArea className="flex-1 px-3 py-4">
-
+        <div className="h-10" /> {/* Vertical margin above the scroll area items */}
         <div className="space-y-1">
           {menuItems.map((item) => (
             <button

@@ -14,6 +14,9 @@ export class AudioEngine {
   private analyserR: AnalyserNode | null = null;
   private source: AudioBufferSourceNode | null = null;
   private gainNode: GainNode | null = null;
+  private eqLow: BiquadFilterNode | null = null;
+  private eqMid: BiquadFilterNode | null = null;
+  private eqHigh: BiquadFilterNode | null = null;
   private buffer: AudioBuffer | null = null;
   private startTime: number = 0;
   private pauseTime: number = 0;
@@ -38,8 +41,29 @@ export class AudioEngine {
       const splitter = this.context.createChannelSplitter(2);
       
       this.gainNode = this.context.createGain();
+
+      // EQ Setup
+      this.eqLow = this.context.createBiquadFilter();
+      this.eqLow.type = 'lowshelf';
+      this.eqLow.frequency.value = 320;
+      this.eqLow.gain.value = 0;
+
+      this.eqMid = this.context.createBiquadFilter();
+      this.eqMid.type = 'peaking';
+      this.eqMid.frequency.value = 1000;
+      this.eqMid.Q.value = 0.5;
+      this.eqMid.gain.value = 0;
+
+      this.eqHigh = this.context.createBiquadFilter();
+      this.eqHigh.type = 'highshelf';
+      this.eqHigh.frequency.value = 3200;
+      this.eqHigh.gain.value = 0;
       
-      // Connect source chain
+      // Connect source chain: Source -> EQ (Low -> Mid -> High) -> Gain -> Analyser -> Splitter/Output
+      this.eqLow.connect(this.eqMid);
+      this.eqMid.connect(this.eqHigh);
+      this.eqHigh.connect(this.gainNode);
+      
       this.gainNode.connect(this.analyser);
       this.gainNode.connect(splitter);
       
@@ -47,6 +71,14 @@ export class AudioEngine {
       splitter.connect(this.analyserR, 1);
       
       this.analyser.connect(this.context.destination);
+    }
+  }
+
+  setEQ(band: 'low' | 'mid' | 'high', gain: number) {
+    if (!this.context) this.initContext();
+    const node = band === 'low' ? this.eqLow : band === 'mid' ? this.eqMid : this.eqHigh;
+    if (node) {
+      node.gain.setTargetAtTime(gain, this.context!.currentTime, 0.01);
     }
   }
 
@@ -89,7 +121,7 @@ export class AudioEngine {
 
     this.source = this.context.createBufferSource();
     this.source.buffer = this.buffer;
-    this.source.connect(this.gainNode!);
+    this.source.connect(this.eqLow!);
     
     this.source.start(0, this.pauseTime);
     this.startTime = this.context.currentTime - this.pauseTime;

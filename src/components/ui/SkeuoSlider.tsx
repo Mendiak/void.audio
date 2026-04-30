@@ -10,6 +10,7 @@ interface SkeuoSliderProps {
   step?: number;
   onValueChange: (value: number[]) => void;
   variant?: 'blue' | 'green' | 'red' | 'neutral';
+  orientation?: 'horizontal' | 'vertical';
   className?: string;
 }
 
@@ -20,10 +21,19 @@ export function SkeuoSlider({
   step = 1,
   onValueChange,
   variant = 'neutral',
+  orientation = 'horizontal',
   className = '',
 }: SkeuoSliderProps) {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [containerHeight, setContainerHeight] = React.useState(100);
   const currentValue = value[0];
   const percentage = ((currentValue - min) / (max - min)) * 100;
+
+  React.useEffect(() => {
+    if (orientation === 'vertical' && containerRef.current) {
+      setContainerHeight(containerRef.current.clientHeight);
+    }
+  }, [orientation]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(e.target.value);
@@ -32,8 +42,12 @@ export function SkeuoSlider({
 
   return (
     <div 
-      className={`skeuo-slider-wrapper variant-${variant} ${className}`}
-      style={{ '--slider-value': percentage } as React.CSSProperties}
+      ref={containerRef}
+      className={`skeuo-slider-wrapper variant-${variant} orientation-${orientation} ${className}`}
+      style={{ 
+        '--slider-value': percentage,
+        '--slider-height': `${containerHeight}px`
+      } as React.CSSProperties}
     >
       <div className="skeuo-slider-container">
         <div className="skeuo-slider-track">

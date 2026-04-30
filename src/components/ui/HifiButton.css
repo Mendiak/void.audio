@@ -1,0 +1,93 @@
+.hifi-button-wrapper {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hifi-button-well {
+  background: #0a0a0a;
+  padding: 3px;
+  border-radius: 50%;
+  box-shadow: 
+    inset 0 2px 5px rgba(0,0,0,0.8),
+    0 1px 1px rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hifi-button-cap {
+  position: relative;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #d1d1d1, #a1a1a1);
+  box-shadow: 
+    2px 2px 5px rgba(0,0,0,0.4),
+    -1px -1px 2px rgba(255,255,255,0.8),
+    inset 0 0 2px rgba(255,255,255,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s;
+  overflow: hidden;
+}
+
+.hifi-button-lathe-texture {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-conic-gradient(
+    from 0deg,
+    rgba(0,0,0,0.05) 0deg 1deg,
+    rgba(255,255,255,0.05) 1deg 2deg
+  );
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hifi-button-content {
+  position: relative;
+  z-index: 1;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* SIZES */
+.size-sm .hifi-button-cap { width: 32px; height: 32px; }
+.size-md .hifi-button-cap { width: 44px; height: 44px; }
+.size-lg .hifi-button-cap { width: 56px; height: 56px; }
+
+.size-sm .hifi-button-content svg { width: 14px; height: 14px; }
+.size-md .hifi-button-content svg { width: 18px; height: 18px; }
+.size-lg .hifi-button-content svg { width: 24px; height: 24px; }
+
+/* VARIANTS */
+.variant-primary .hifi-button-cap {
+  background: linear-gradient(145deg, #f05a22, #d72d12);
+}
+.variant-primary .hifi-button-content { color: white; }
+
+.variant-accent .hifi-button-cap {
+  background: linear-gradient(145deg, #4ade80, #16a34a);
+}
+.variant-accent .hifi-button-content { color: white; }
+
+/* STATES */
+.hifi-button-wrapper:active .hifi-button-cap {
+  transform: scale(0.92) translate(1px, 1px);
+  box-shadow: 
+    0 0 1px rgba(0,0,0,0.2),
+    inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.hifi-button-wrapper.is-active .hifi-button-cap {
+  box-shadow: 
+    0 0 10px rgba(240, 90, 34, 0.4),
+    inset 0 0 5px rgba(255, 255, 255, 0.4);
+}

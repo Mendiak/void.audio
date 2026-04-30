@@ -60,6 +60,7 @@ interface AudioContextType {
   playTrack: (id: string) => Promise<void>;
   nextTrack: () => void;
   previousTrack: () => void;
+  setEQ: (band: 'low' | 'mid' | 'high', gain: number) => void;
   metrics: { latency: number; sampleRate: number };
   engine: AudioEngine | null;
 }
@@ -121,6 +122,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     engineRef.current?.setVolume(v);
   };
   const seek = (time: number) => engineRef.current?.seek(time);
+
+  const setEQ = (band: 'low' | 'mid' | 'high', gain: number) => {
+    engineRef.current?.setEQ(band, gain);
+  };
 
   useEffect(() => {
     if (trackInfo.title !== 'NO SIGNAL') {
@@ -246,6 +251,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       playTrack,
       nextTrack,
       previousTrack,
+      setEQ,
       metrics,
       engine: engineRef.current
     }}>

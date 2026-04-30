@@ -10,6 +10,7 @@ import { useUI, THEMES } from '@/store/UIContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Activity, Zap, Package, Music, Settings as SettingsIcon, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function Home() {
   const { loadLocalFile, isPlaying, trackInfo, library, addToLibrary, metrics, playTrack } = useAudio();
@@ -95,93 +96,95 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto border border-border/10 bg-black/20">
-              {library.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center space-y-6">
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center gap-6 text-center"
-                  >
-                    <div className="w-16 h-16 border border-primary/20 flex items-center justify-center bg-primary/5">
-                      <Zap size={32} className="text-primary animate-pulse" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">No Music Found</h3>
-                      <p className="text-xs text-muted-foreground max-w-xs font-mono">
-                        Your library is empty. Load your local tracks to start listening.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="px-8 py-3 border border-primary bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95 flex items-center gap-3"
+            <div className="flex-1 overflow-hidden border border-border/10 bg-black/20">
+              <ScrollArea className="h-full">
+                {library.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center space-y-6 min-h-[400px]">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col items-center gap-6 text-center"
                     >
-                      <Package size={14} />
-                      Load Local Signals
-                    </button>
-                  </motion.div>
-                </div>
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="border-b border-border/10 text-[9px] uppercase tracking-widest text-muted-foreground/40">
-                      <th className="p-3 font-normal">Artist</th>
-                      <th className="p-3 font-normal">Track</th>
-                      <th className="p-3 font-normal">Album</th>
-                      <th className="p-3 font-normal">Type</th>
-                      <th className="p-3 font-normal text-right">Bitrate</th>
-                      <th className="p-3 font-normal text-right">Data Size</th>
-                      <th className="p-3 font-normal w-20"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="text-[11px] uppercase tracking-tight">
-                    {library.map((track) => {
-                      const isActive = trackInfo.title === track.title;
-                      return (
-                        <tr 
-                          key={track.id} 
-                          className={cn(
-                            "border-b border-border/5 group cursor-pointer transition-colors",
-                            isActive ? "bg-primary/10" : "hover:bg-primary/5"
-                          )}
-                          onClick={() => playTrack(track.id)}
-                        >
-                          <td className="p-3 text-muted-foreground/60 font-mono flex items-center gap-3">
-                            <div className={cn(
-                              "w-1.5 h-1.5 rounded-full transition-all duration-500 shrink-0",
-                              isActive 
-                                ? "bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" 
-                                : "bg-zinc-800 opacity-20 group-hover:opacity-100"
-                            )} />
-                            <span className="truncate">{track.artist}</span>
-                          </td>
-                          <td className="p-3 font-bold truncate max-w-[200px]">
-                            {track.title}
-                          </td>
-                          <td className="p-3 text-muted-foreground/40 italic truncate max-w-[150px]">
-                            {track.album || 'SINGLE'}
-                          </td>
-                          <td className="p-3 text-muted-foreground/50">
-                            {track.file.name.split('.').pop()?.toUpperCase() || 'RAW'}
-                          </td>
-                          <td className="p-3 text-right text-muted-foreground/30 font-mono">
-                            320 KBPS
-                          </td>
-                          <td className="p-3 text-right text-muted-foreground/30 font-mono">
-                            {(track.file.size / (1024 * 1024)).toFixed(2)} MB
-                          </td>
-                          <td className="p-3 text-right">
-                            <Activity size={12} className={cn(
-                              "inline-block transition-all",
-                              isActive ? "text-primary animate-pulse" : "text-muted-foreground/10 opacity-0 group-hover:opacity-100"
-                            )} />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              )}
+                      <div className="w-16 h-16 border border-primary/20 flex items-center justify-center bg-primary/5">
+                        <Zap size={32} className="text-primary animate-pulse" />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-mono uppercase tracking-[0.2em] crt-glow">No Music Found</h3>
+                        <p className="text-xs text-muted-foreground max-w-xs font-mono">
+                          Your library is empty. Load your local tracks to start listening.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-8 py-3 border border-primary bg-primary/10 text-primary text-xs font-mono uppercase tracking-widest hover:bg-primary/20 transition-all active:scale-95 flex items-center gap-3"
+                      >
+                        <Package size={14} />
+                        Load Local Signals
+                      </button>
+                    </motion.div>
+                  </div>
+                ) : (
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-border/10 text-[9px] uppercase tracking-widest text-muted-foreground/40">
+                        <th className="p-3 font-normal">Artist</th>
+                        <th className="p-3 font-normal">Track</th>
+                        <th className="p-3 font-normal">Album</th>
+                        <th className="p-3 font-normal">Type</th>
+                        <th className="p-3 font-normal text-right">Bitrate</th>
+                        <th className="p-3 font-normal text-right">Data Size</th>
+                        <th className="p-3 font-normal w-20"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-[11px] uppercase tracking-tight">
+                      {library.map((track) => {
+                        const isActive = trackInfo.title === track.title;
+                        return (
+                          <tr 
+                            key={track.id} 
+                            className={cn(
+                              "border-b border-border/5 group cursor-pointer transition-colors",
+                              isActive ? "bg-primary/10" : "hover:bg-primary/5"
+                            )}
+                            onClick={() => playTrack(track.id)}
+                          >
+                            <td className="p-3 text-muted-foreground/60 font-mono flex items-center gap-3">
+                              <div className={cn(
+                                "w-1.5 h-1.5 rounded-full transition-all duration-500 shrink-0",
+                                isActive 
+                                  ? "bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]" 
+                                  : "bg-zinc-800 opacity-20 group-hover:opacity-100"
+                              )} />
+                              <span className="truncate">{track.artist}</span>
+                            </td>
+                            <td className="p-3 font-bold truncate max-w-[200px]">
+                              {track.title}
+                            </td>
+                            <td className="p-3 text-muted-foreground/40 italic truncate max-w-[150px]">
+                              {track.album || 'SINGLE'}
+                            </td>
+                            <td className="p-3 text-muted-foreground/50">
+                              {('name' in track.file) ? track.file.name.split('.').pop()?.toUpperCase() : 'RAW'}
+                            </td>
+                            <td className="p-3 text-right text-muted-foreground/30 font-mono">
+                              320 KBPS
+                            </td>
+                            <td className="p-3 text-right text-muted-foreground/30 font-mono">
+                              {(track.file.size / (1024 * 1024)).toFixed(2)} MB
+                            </td>
+                            <td className="p-3 text-right">
+                              <Activity size={12} className={cn(
+                                "inline-block transition-all",
+                                isActive ? "text-primary animate-pulse" : "text-muted-foreground/10 opacity-0 group-hover:opacity-100"
+                              )} />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </ScrollArea>
             </div>
           </div>
         );
@@ -284,7 +287,7 @@ export default function Home() {
   };
 
   return (
-    <main className="h-screen w-screen flex flex-col bg-background text-foreground overflow-hidden">
+    <main className="h-screen w-screen flex flex-col bg-[#050505] text-foreground overflow-hidden">
       <BootScreen />
       
       <input 
@@ -296,15 +299,16 @@ export default function Home() {
         className="hidden" 
       />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
         <Sidebar />
         
-        <div className="flex-1 flex flex-col relative overflow-hidden bg-zinc-950">
-          {/* Minimal Spacer */}
-          <div className="h-4" />
+        <div className="flex-1 flex flex-col relative overflow-hidden bg-black">
+          {/* Top 'Lip' of the chassis wrapping the screen */}
+          <div className="h-2 bg-[#1a1b1c] border-b border-white/5 shrink-0" />
+          <div className="absolute top-2 left-0 right-0 h-4 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-10" />
 
-          {/* Dynamic Content Area */}
-          <div className="flex-1 overflow-hidden relative">
+          {/* Dynamic Content Area (The 'Screen') */}
+          <div className="flex-1 overflow-hidden relative shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeView}
@@ -321,6 +325,13 @@ export default function Home() {
         </div>
       </div>
       <Player />
+      
+      {/* Discreet Footer Credits */}
+      <footer className="mt-2 py-2 px-8 text-[10px] font-mono text-white/30 flex justify-end shrink-0 pointer-events-auto tracking-widest uppercase">
+        <span className="pointer-events-auto">
+          Engineered by <a href="https://mendiak.github.io/portfolio/" target="_blank" rel="noopener noreferrer" className="text-white/50 hover:text-orange-500/80 transition-colors border-b border-white/10 hover:border-orange-500/40 ml-1">Mikel Aramendia</a>
+        </span>
+      </footer>
     </main>
   );
 }
