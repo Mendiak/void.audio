@@ -104,11 +104,13 @@ export function Player() {
   } = useAudio();
 
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const [eqValues, setEqValues] = React.useState({ low: 0, mid: 0, high: 0 });
+  const [eqValues, setEqValues] = React.useState(new Array(7).fill(0));
 
-  const handleEqChange = (band: 'low' | 'mid' | 'high', value: number) => {
-    setEqValues(prev => ({ ...prev, [band]: value }));
-    setEQ(band, value);
+  const handleEqChange = (index: number, value: number) => {
+    const newValues = [...eqValues];
+    newValues[index] = value;
+    setEqValues(newValues);
+    setEQ(index, value);
   };
 
   return (
@@ -225,26 +227,30 @@ export function Player() {
         </div>
 
         {/* PANEL 3: Vertical Equalizer */}
-        <div className="w-44 flex flex-col items-center justify-center gap-2 px-6 border-r border-black/40 relative">
+        <div className="w-80 flex flex-col items-center justify-center gap-2 px-4 border-r border-black/40 relative">
           <span className="text-[6px] font-mono text-white/20 uppercase tracking-[0.5em]">Module 03 / EQ</span>
-          <div className="flex gap-3 h-28 items-end">
+          <div className="flex gap-2 h-28 items-end w-full justify-between">
             {[
-              { id: 'low', label: 'B', color: 'blue' },
-              { id: 'mid', label: 'M', color: 'neutral' },
-              { id: 'high', label: 'T', color: 'red' }
-            ].map((band) => (
-              <div key={band.id} className="flex flex-col items-center gap-1 h-full w-8">
-                <span className="text-[5px] font-mono text-white/20 uppercase">{band.label}</span>
+              { freq: '60', color: 'blue' },
+              { freq: '150', color: 'blue' },
+              { freq: '400', color: 'neutral' },
+              { freq: '1K', color: 'neutral' },
+              { freq: '2.4K', color: 'neutral' },
+              { freq: '6K', color: 'red' },
+              { freq: '15K', color: 'red' }
+            ].map((band, i) => (
+              <div key={i} className="flex flex-col items-center gap-1 h-full flex-1">
+                <span className="text-[5px] font-mono text-white/20 uppercase whitespace-nowrap">{band.freq}</span>
                 <SkeuoSlider 
-                  value={[eqValues[band.id as keyof typeof eqValues]]} 
+                  value={[eqValues[i]]} 
                   min={-12}
                   max={12}
-                  onValueChange={(v) => handleEqChange(band.id as any, v[0])}
+                  onValueChange={(v) => handleEqChange(i, v[0])}
                   variant={band.color as any}
                   orientation="vertical"
                   className="flex-1"
                 />
-                <span className="text-[5px] font-mono text-white/40">{eqValues[band.id as keyof typeof eqValues]}</span>
+                <span className="text-[5px] font-mono text-white/40">{eqValues[i]}</span>
               </div>
             ))}
           </div>

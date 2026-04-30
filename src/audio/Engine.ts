@@ -14,13 +14,13 @@ export class AudioEngine {
   private analyserR: AnalyserNode | null = null;
   private source: AudioBufferSourceNode | null = null;
   private gainNode: GainNode | null = null;
-  private eqLow: BiquadFilterNode | null = null;
-  private eqMid: BiquadFilterNode | null = null;
-  private eqHigh: BiquadFilterNode | null = null;
+  private eqNodes: BiquadFilterNode[] = [];
   private buffer: AudioBuffer | null = null;
   private startTime: number = 0;
   private pauseTime: number = 0;
   private isPlaying: boolean = false;
+
+  private FREQUENCIES = [60, 150, 400, 1000, 2400, 6000, 15000];
 
   constructor() {
     // Context is created on first interaction to comply with browser policies
@@ -43,26 +43,26 @@ export class AudioEngine {
       this.gainNode = this.context.createGain();
 
       // EQ Setup
-      this.eqLow = this.context.createBiquadFilter();
-      this.eqLow.type = 'lowshelf';
-      this.eqLow.frequency.value = 320;
-      this.eqLow.gain.value = 0;
+      this.eqNodes = this.FREQUENCIES.map((freq, i) => {
+        const filter = this.context!.createBiquadFilter();
+        if (i === 0) {
+          filter.type = 'lowshelf';
+        } else if (i === this.FREQUENCIES.length - 1) {
+          filter.type = 'highshelf';
+        } else {
+          filter.type = 'peaking';
+          filter.Q.value = 1;
+        }
+        filter.frequency.value = freq;
+        filter.gain.value = 0;
+        return filter;
+      });
 
-      this.eqMid = this.context.createBiquadFilter();
-      this.eqMid.type = 'peaking';
-      this.eqMid.frequency.value = 1000;
-      this.eqMid.Q.value = 0.5;
-      this.eqMid.gain.value = 0;
-
-      this.eqHigh = this.context.createBiquadFilter();
-      this.eqHigh.type = 'highshelf';
-      this.eqHigh.frequency.value = 3200;
-      this.eqHigh.gain.value = 0;
-      
-      // Connect source chain: Source -> EQ (Low -> Mid -> High) -> Gain -> Analyser -> Splitter/Output
-      this.eqLow.connect(this.eqMid);
-      this.eqMid.connect(this.eqHigh);
-      this.eqHigh.connect(this.gainNode);
+      // Connect EQ chain: Source -> EQ0 -> EQ1 -> ... -> EQN -> Gain
+      this.eqNodes.reduce((prev, curr) => {
+        prev.connect(curr);
+        return curr;
+      }).connect(this.gainNode);
       
       this.gainNode.connect(this.analyser);
       this.gainNode.connect(splitter);
@@ -74,9 +74,9 @@ export class AudioEngine {
     }
   }
 
-  setEQ(band: 'low' | 'mid' | 'high', gain: number) {
+  setEQ(index: number, gain: number) {
     if (!this.context) this.initContext();
-    const node = band === 'low' ? this.eqLow : band === 'mid' ? this.eqMid : this.eqHigh;
+    const node = this.eqNodes[index];
     if (node) {
       node.gain.setTargetAtTime(gain, this.context!.currentTime, 0.01);
     }
@@ -121,7 +121,7 @@ export class AudioEngine {
 
     this.source = this.context.createBufferSource();
     this.source.buffer = this.buffer;
-    this.source.connect(this.eqLow!);
+    this.source.connect(this.eqNodes[0]!);
     
     this.source.start(0, this.pauseTime);
     this.startTime = this.context.currentTime - this.pauseTime;
